@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Van Gogh — Starry Night</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #071018;
+      --fog: rgba(220, 230, 255, 0.72);
+      --gold: #f0c14b;
+      --panel: rgba(8, 16, 28, 0.55);
+      --line: rgba(180, 200, 255, 0.18);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      background: var(--ink); color: var(--fog);
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      cursor: crosshair;
+    }
+    canvas { display: block; width: 100%; height: 100%; }
+    .hud { position: fixed; inset: 0; pointer-events: none; z-index: 2; }
+    .brand {
+      position: absolute;
+      top: clamp(1.2rem, 3vw, 2.4rem);
+      left: clamp(1.2rem, 3vw, 2.4rem);
+      max-width: min(34rem, 78vw);
+      transition: opacity 1.2s ease;
+    }
+    .brand.dim { opacity: 0.22; }
+    .brand.dim p { opacity: 0; }
+    .brand h1 {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(2rem, 5vw, 3.6rem);
+      line-height: 0.95;
+      letter-spacing: 0.02em;
+      color: #eef3ff;
+      text-shadow: 0 0 40px rgba(90, 140, 255, 0.35);
+    }
+    .brand h1 em {
+      font-style: italic; color: var(--gold);
+      text-shadow: 0 0 28px rgba(240, 193, 75, 0.35);
+    }
+    .brand p {
+      margin-top: 0.7rem; font-size: 0.92rem; line-height: 1.45;
+      color: rgba(210, 222, 255, 0.7); max-width: 26rem;
+      transition: opacity 0.8s ease;
+    }
+    .toggle {
+      position: absolute;
+      right: clamp(1rem, 2.5vw, 1.8rem);
+      bottom: clamp(1rem, 2.5vw, 1.8rem);
+      pointer-events: auto;
+      border: 1px solid rgba(200, 214, 255, 0.45);
+      background: rgba(28, 48, 88, 0.92);
+      color: #f2f6ff;
+      border-radius: 999px;
+      padding: 0.78rem 1.25rem;
+      font: 600 0.86rem/1 "IBM Plex Sans", system-ui, sans-serif;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      opacity: 0;
+      transform: translate3d(0, 10px, 0) scale(0.96);
+      transition: opacity 0.7s ease, transform 0.7s ease, background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      box-shadow:
+        0 0 0 1px rgba(240, 193, 75, 0.18),
+        0 10px 28px rgba(0, 0, 0, 0.4),
+        0 0 24px rgba(122, 162, 255, 0.22);
+    }
+    .toggle:hover {
+      background: rgba(42, 68, 120, 0.96);
+      border-color: rgba(240, 193, 75, 0.55);
+      box-shadow:
+        0 0 0 1px rgba(240, 193, 75, 0.35),
+        0 12px 32px rgba(0, 0, 0, 0.45),
+        0 0 32px rgba(122, 162, 255, 0.35);
+    }
+    .toggle.is-open {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+      animation: chipArrive 1.1s ease-out, chipGlow 2.8s ease-in-out 1.1s infinite;
+    }
+    .toggle.reveal {
+      right: auto;
+      left: clamp(1rem, 2.5vw, 1.8rem);
+      bottom: clamp(1rem, 2.5vw, 1.8rem);
+      background: rgba(56, 42, 18, 0.94);
+      border-color: rgba(240, 193, 75, 0.55);
+      color: #ffe9b0;
+      box-shadow:
+        0 0 0 1px rgba(240, 193, 75, 0.28),
+        0 10px 28px rgba(0, 0, 0, 0.4),
+        0 0 28px rgba(240, 193, 75, 0.28);
+    }
+    .toggle.reveal:hover {
+      background: rgba(78, 58, 22, 0.98);
+      border-color: rgba(255, 214, 120, 0.75);
+    }
+    @keyframes chipArrive {
+      0% { opacity: 0; transform: translate3d(0, 14px, 0) scale(0.9); }
+      55% { opacity: 1; transform: translate3d(0, -3px, 0) scale(1.04); }
+      100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+    }
+    @keyframes chipGlow {
+      0%, 100% {
+        box-shadow:
+          0 0 0 1px rgba(240, 193, 75, 0.22),
+          0 10px 28px rgba(0, 0, 0, 0.4),
+          0 0 18px rgba(122, 162, 255, 0.2);
+      }
+      50% {
+        box-shadow:
+          0 0 0 1px rgba(240, 193, 75, 0.45),
+          0 12px 32px rgba(0, 0, 0, 0.45),
+          0 0 36px rgba(240, 193, 75, 0.35);
+      }
+    }
+    .motif-text {
+      position: absolute;
+      left: 50%;
+      top: 46%;
+      transform: translate(-50%, -50%);
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: clamp(1.8rem, 5vw, 3.2rem);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: rgba(238, 243, 255, 0.92);
+      text-shadow: 0 0 40px rgba(120, 160, 255, 0.35);
+      opacity: 0;
+      transition: opacity 0.9s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .motif-text.show { opacity: 1; }
+    .panel {
+      position: absolute;
+      right: clamp(1rem, 2.5vw, 1.8rem);
+      bottom: calc(clamp(1rem, 2.5vw, 1.8rem) + 3.6rem);
+      width: min(17.5rem, calc(100vw - 2rem));
+      padding: 1rem 1.05rem 1.1rem;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(8, 14, 26, 0.94);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
+      pointer-events: none;
+      opacity: 0;
+      transform: translate3d(0, 8px, 0);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+      contain: layout paint style;
+      backface-visibility: hidden;
+    }
+    .panel.is-open {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+      pointer-events: auto;
+    }
+    .panel h2 {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 1.15rem; font-weight: 600; letter-spacing: 0.04em;
+      margin-bottom: 0.85rem; color: #f4f7ff;
+    }
+    .row { display: grid; gap: 0.28rem; margin-bottom: 0.75rem; }
+    .row label {
+      display: flex; justify-content: space-between;
+      font-size: 0.72rem; letter-spacing: 0.04em;
+      text-transform: uppercase; color: rgba(200, 214, 255, 0.65);
+    }
+    .row label span:last-child {
+      color: rgba(240, 193, 75, 0.9);
+      font-variant-numeric: tabular-nums;
+    }
+    input[type="range"] { width: 100%; accent-color: #7aa2ff; cursor: pointer; }
+    .stroke-row {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+    .stroke-row button {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+      color: #e8eeff; border-radius: 999px;
+      padding: 0.45rem 0.2rem;
+      font: 500 0.7rem/1 "IBM Plex Sans", system-ui, sans-serif;
+      letter-spacing: 0.03em; cursor: pointer;
+    }
+    .stroke-row button.active {
+      background: rgba(122, 162, 255, 0.22);
+      border-color: rgba(122, 162, 255, 0.55);
+    }
+    .actions { display: flex; gap: 0.5rem; margin-top: 0.2rem; }
+    .actions button {
+      flex: 1; border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+      color: #e8eeff; border-radius: 999px;
+      padding: 0.55rem 0.7rem;
+      font: 500 0.78rem/1 "IBM Plex Sans", system-ui, sans-serif;
+      letter-spacing: 0.03em; cursor: pointer;
+    }
+    .actions button:hover, .stroke-row button:hover {
+      background: rgba(122, 162, 255, 0.16);
+      border-color: rgba(122, 162, 255, 0.45);
+    }
+    .hint {
+      position: absolute;
+      left: 50%;
+      bottom: clamp(1.15rem, 3vw, 2.2rem);
+      transform: translateX(-50%);
+      font-size: 0.74rem;
+      color: rgba(210, 222, 255, 0.62);
+      letter-spacing: 0.02em;
+      transition: opacity 0.6s ease;
+      text-align: center;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .hint.dim { opacity: 0.45; }
+    .hint.with-reveal {
+      bottom: calc(clamp(1rem, 2.5vw, 1.8rem) + 3.35rem);
+    }
+    .pause-badge {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.2em;
+      color: rgba(238, 243, 255, 0.72);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+      text-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
+    }
+    .pause-badge.show { opacity: 1; }
+    .toast {
+      position: absolute;
+      left: 50%;
+      top: clamp(1.2rem, 4vh, 2.5rem);
+      transform: translateX(-50%) translateY(-8px);
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(8, 14, 26, 0.9);
+      color: rgba(230, 236, 255, 0.85);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      opacity: 0;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .fps { opacity: 0.7; font-variant-numeric: tabular-nums; }
+    .phase {
+      position: absolute;
+      left: 50%;
+      bottom: clamp(4.5rem, 12vh, 7rem);
+      transform: translateX(-50%);
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: clamp(1rem, 2.4vw, 1.35rem);
+      letter-spacing: 0.12em;
+      color: rgba(230, 236, 255, 0.55);
+      text-align: center;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .phase.hide { opacity: 0; }
+    .phase strong {
+      display: block;
+      margin-top: 0.35rem;
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(240, 193, 75, 0.7);
+    }
+    .boot.hide { opacity: 0; }
+    .boot span {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 1.4rem; color: rgba(230, 236, 255, 0.7);
+      letter-spacing: 0.08em;
+    }
+    @media (max-width: 720px) {
+      .panel { width: calc(100vw - 1.6rem); }
+      .hint { display: none; }
+      .brand p { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div class="hud">
+    <div class="boot" id="boot"><span>Unfolding the night…</span></div>
+    <div class="brand" id="brand">
+      <h1>The <em>Starry</em> Night</h1>
+      <p>The sky wakes from silence. Move to stir it; drag to deepen the swirl.</p>
+    </div>
+    <div class="motif-text" id="motifText">For you.</div>
+    <div class="pause-badge" id="pauseBadge">Paused</div>
+    <div class="toast" id="toast">Saved</div>
+    <div class="panel" id="panel">
+      <h2>Atmosphere</h2>
+      <div class="row">
+        <label><span>Flow</span><span id="v-speed">0.00</span></label>
+        <input id="speed" type="range" min="0" max="1" step="0.01" value="0" />
+      </div>
+      <div class="row">
+        <label><span>Swirl</span><span id="v-swirl">0.00</span></label>
+        <input id="swirl" type="range" min="0" max="2.2" step="0.05" value="0" />
+      </div>
+      <div class="row">
+        <label><span>Density</span><span id="v-density">0</span></label>
+        <input id="density" type="range" min="0" max="3000" step="100" value="0" />
+      </div>
+      <div class="row">
+        <label><span>Quality</span><span id="v-quality">Low</span></label>
+        <input id="quality" type="range" min="0" max="2" step="1" value="0" />
+      </div>
+      <div class="row">
+        <label><span>Stroke</span><span id="v-stroke">Balanced</span></label>
+      </div>
+      <div class="stroke-row" id="strokeRow">
+        <button type="button" data-stroke="ink">Ink</button>
+        <button type="button" data-stroke="balanced" class="active">Balanced</button>
+        <button type="button" data-stroke="spark">Spark</button>
+      </div>
+      <div class="actions">
+        <button id="replay" type="button">Replay Intro</button>
+        <button id="perf" type="button">Light Mode</button>
+      </div>
+    </div>
+    <button type="button" class="toggle reveal" id="seqBtn">Reveal</button>
+    <button type="button" class="toggle" id="toggle" aria-expanded="false">Controls</button>
+    <div class="hint" id="hint">Move · Drag &nbsp;·&nbsp; Space pause &nbsp;·&nbsp; S save &nbsp;·&nbsp; <span class="fps" id="fps">— fps</span></div>
+    <div class="phase" id="phase">Still night<strong>particles gathering</strong></div>
+  </div>
+
+  <script src="image_data.js"></script>
+  <script src="kitten_motif_data.js"></script>
+  <script src="glow-global.js"></script>
+  <script>
+    (() => {
+      const canvas = document.getElementById("c");
+      let glow;
+      try {
+        glow = createGlowRenderer(canvas);
+      } catch (err) {
+        document.getElementById("boot").innerHTML = "<span>WebGL2 required for glow render</span>";
+        console.error(err);
+        return;
+      }
+      const QUALITY_LABELS = ["Low", "Auto", "High"];
+      const STROKE_FADE = { ink: 0.035, balanced: 0.075, spark: 0.13 };
+      const MAX_DENSITY = 3000;
+      const gpuList = [];
+
+      const ui = {
+        speed: document.getElementById("speed"),
+        swirl: document.getElementById("swirl"),
+        density: document.getElementById("density"),
+        quality: document.getElementById("quality"),
+        vSpeed: document.getElementById("v-speed"),
+        vSwirl: document.getElementById("v-swirl"),
+        vDensity: document.getElementById("v-density"),
+        vQuality: document.getElementById("v-quality"),
+        vStroke: document.getElementById("v-stroke"),
+        fps: document.getElementById("fps"),
+        replay: document.getElementById("replay"),
+        perf: document.getElementById("perf"),
+        panel: document.getElementById("panel"),
+        toggle: document.getElementById("toggle"),
+        brand: document.getElementById("brand"),
+        boot: document.getElementById("boot"),
+        strokeRow: document.getElementById("strokeRow"),
+        phase: document.getElementById("phase"),
+        hint: document.getElementById("hint"),
+        pauseBadge: document.getElementById("pauseBadge"),
+        toast: document.getElementById("toast"),
+        seqBtn: document.getElementById("seqBtn"),
+        motifText: document.getElementById("motifText"),
+      };
+
+      let W = 0, H = 0, dpr = 1;
+      let particles = [];
+      let fieldCols = 0, fieldRows = 0;
+      let field = null, colors = null;
+      let seed = 42;
+      let time = 0;
+      let fieldInterval = 80, fieldCell = 18;
+      let autoDensityCap = MAX_DENSITY;
+      let fpsEma = 60;
+      let strokeMode = "balanced";
+      let trailFade = STROKE_FADE.balanced;
+      let painting = null; // { w, h, color: Uint8ClampedArray rgba, edge: Float32Array }
+
+      // User targets (what sliders settle to); live values may be intro-lerped
+      const target = { speed: 0.75, swirl: 1.35, density: 2000, quality: 1 };
+      const live = { speed: 0, swirl: 0, density: 0 };
+      let intro = {
+        active: true,
+        t0: 0,
+        duration: 14000,
+        userLocked: false,
+        phase: "gather",
+      };
+
+      const mouse = { x: 0.5, y: 0.45, tx: 0.5, ty: 0.45, down: false, radius: 0.12 };
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+      function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      }
+      function smoothstep(t) {
+        t = Math.max(0, Math.min(1, t));
+        return t * t * (3 - 2 * t);
+      }
+
+      let bloomStrength = 0.55;
+
+      function applyQualityPreset(q) {
+        if (q === 0) {
+          dpr = 1; fieldCell = 24; fieldInterval = 110; autoDensityCap = 2000;
+          bloomStrength = 0;
+        } else if (q === 2) {
+          dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+          fieldCell = 14; fieldInterval = 56; autoDensityCap = MAX_DENSITY;
+          bloomStrength = 0.85;
+        } else {
+          const pixels = window.innerWidth * window.innerHeight;
+          dpr = Math.min(window.devicePixelRatio || 1, pixels > 2e6 ? 1.15 : 1.35);
+          fieldCell = pixels > 2e6 ? 22 : 18;
+          fieldInterval = 80;
+          autoDensityCap = Math.min(MAX_DENSITY, Math.max(1500, Math.round(1600 + pixels / 1400)));
+          bloomStrength = 0.55;
+        }
+      }
+
+      function hash(x, y) {
+        const s = Math.sin(x * 127.1 + y * 311.7 + seed) * 43758.5453;
+        return s - Math.floor(s);
+      }
+      function smoothNoise(x, y) {
+        const x0 = Math.floor(x), y0 = Math.floor(y);
+        const fx = x - x0, fy = y - y0;
+        const ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy);
+        const a = hash(x0, y0), b = hash(x0 + 1, y0);
+        const c = hash(x0, y0 + 1), d = hash(x0 + 1, y0 + 1);
+        return a + (b - a) * ux + (c - a) * uy + (a - b - c + d) * ux * uy;
+      }
+      function fbm(x, y) {
+        let v = 0, a = 0.5, f = 1;
+        for (let i = 0; i < 4; i++) { v += a * smoothNoise(x * f, y * f); f *= 2; a *= 0.5; }
+        return v;
+      }
+
+      function vortex(px, py, cx, cy, strength, radius) {
+        const dx = px - cx, dy = py - cy;
+        const falloff = Math.exp(-(dx * dx + dy * dy) / (radius * radius));
+        return { x: -dy * strength * falloff, y: dx * strength * falloff };
+      }
+
+      function loadPainting() {
+        return new Promise((resolve, reject) => {
+          if (typeof STARRY_NIGHT_B64 === "undefined") {
+            reject(new Error("missing image_data.js"));
+            return;
+          }
+          const img = new Image();
+          img.onload = () => {
+            const maxW = 220;
+            const scale = Math.min(1, maxW / img.width);
+            const w = Math.max(64, Math.round(img.width * scale));
+            const h = Math.max(40, Math.round(img.height * scale));
+            const off = document.createElement("canvas");
+            off.width = w; off.height = h;
+            const octx = off.getContext("2d", { willReadFrequently: true });
+            octx.drawImage(img, 0, 0, w, h);
+            const { data } = octx.getImageData(0, 0, w, h);
+            const edge = new Float32Array(w * h);
+            for (let y = 1; y < h - 1; y++) {
+              for (let x = 1; x < w - 1; x++) {
+                const i = (y * w + x) * 4;
+                const lum = (r, g, b) => 0.299 * r + 0.587 * g + 0.114 * b;
+                const c = lum(data[i], data[i + 1], data[i + 2]);
+                const rgt = lum(data[i + 4], data[i + 5], data[i + 6]);
+                const dn = lum(data[((y + 1) * w + x) * 4], data[((y + 1) * w + x) * 4 + 1], data[((y + 1) * w + x) * 4 + 2]);
+                edge[y * w + x] = Math.min(1, Math.hypot(rgt - c, dn - c) / 48);
+              }
+            }
+            painting = { w, h, color: data, edge };
+            resolve();
+          };
+          img.onerror = reject;
+          img.src = STARRY_NIGHT_B64;
+        });
+      }
+
+      function samplePainting(nx, ny) {
+        if (!painting) {
+          return { r: 40, g: 70, b: 130, edge: 0, lum: 0.3 };
+        }
+        const x = Math.max(0, Math.min(painting.w - 1, nx * (painting.w - 1)));
+        const y = Math.max(0, Math.min(painting.h - 1, ny * (painting.h - 1)));
+        const x0 = Math.floor(x), y0 = Math.floor(y);
+        const x1 = Math.min(painting.w - 1, x0 + 1);
+        const y1 = Math.min(painting.h - 1, y0 + 1);
+        const tx = x - x0, ty = y - y0;
+        const idx = (ix, iy) => (iy * painting.w + ix) * 4;
+        const mix = (a, b, t) => a + (b - a) * t;
+        const i00 = idx(x0, y0), i10 = idx(x1, y0), i01 = idx(x0, y1), i11 = idx(x1, y1);
+        const r = mix(mix(painting.color[i00], painting.color[i10], tx), mix(painting.color[i01], painting.color[i11], tx), ty);
+        const g = mix(mix(painting.color[i00 + 1], painting.color[i10 + 1], tx), mix(painting.color[i01 + 1], painting.color[i11 + 1], tx), ty);
+        const b = mix(mix(painting.color[i00 + 2], painting.color[i10 + 2], tx), mix(painting.color[i01 + 2], painting.color[i11 + 2], tx), ty);
+        const e00 = painting.edge[y0 * painting.w + x0];
+        const e10 = painting.edge[y0 * painting.w + x1];
+        const e01 = painting.edge[y1 * painting.w + x0];
+        const e11 = painting.edge[y1 * painting.w + x1];
+        const edge = mix(mix(e00, e10, tx), mix(e01, e11, tx), ty);
+        const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return { r, g, b, edge, lum };
+      }
+
+      function sampleFlow(nx, ny, swirlAmt) {
+        let vx = 0, vy = 0;
+        const a = vortex(nx, ny, 0.58, 0.34, 1.25 * swirlAmt, 0.26);
+        vx += a.x; vy += a.y;
+        const b = vortex(nx, ny, 0.36, 0.24, 0.85 * swirlAmt, 0.15);
+        vx += b.x; vy += b.y;
+        const c = vortex(nx, ny, 0.76, 0.2, 0.7 * swirlAmt, 0.12);
+        vx += c.x; vy += c.y;
+        const m = vortex(nx, ny, 0.86, 0.17, 0.9 * swirlAmt, 0.1);
+        vx += m.x; vy += m.y;
+
+        const wind = fbm(nx * 2.2 + time * 0.04, ny * 2.2) - 0.5;
+        vx += 0.18 + wind * 0.3;
+        vy += (fbm(nx * 1.5, ny * 1.5 + 12) - 0.5) * 0.22;
+
+        // Edge-aligned drift from painting (brushstroke feel)
+        const p = samplePainting(nx, ny);
+        if (p.edge > 0.12) {
+          const ang = (fbm(nx * 8, ny * 8) - 0.5) * Math.PI;
+          vx += Math.cos(ang) * p.edge * 0.55;
+          vy += Math.sin(ang) * p.edge * 0.55;
+        }
+
+        // Cypress lift (left dark mass in the painting)
+        if (nx < 0.3 && p.lum < 0.35) {
+          const cypress = Math.exp(-Math.pow((nx - 0.14) / 0.09, 2));
+          vy -= 0.5 * cypress * (1.1 - p.lum);
+          vx += (0.14 - nx) * 0.3 * cypress;
+        }
+
+        if (ny > 0.78) { vx *= 0.4; vy *= 0.3; vx += 0.06; }
+
+        const mdx = nx - mouse.x, mdy = ny - mouse.y;
+        const influence = Math.exp(-(mdx * mdx + mdy * mdy) / (mouse.radius * mouse.radius));
+        const force = mouse.down ? 1.55 : 0.5;
+        vx += -mdy * force * influence * Math.max(0.35, swirlAmt);
+        vy += mdx * force * influence * Math.max(0.35, swirlAmt);
+        return { x: vx, y: vy, paint: p };
+      }
+
+      function buildField() {
+        const cell = fieldCell;
+        fieldCols = Math.ceil(W / cell) + 1;
+        fieldRows = Math.ceil(H / cell) + 1;
+        field = new Float32Array(fieldCols * fieldRows * 2);
+        colors = new Float32Array(fieldCols * fieldRows * 3);
+        const swirlAmt = live.swirl;
+        for (let y = 0; y < fieldRows; y++) {
+          for (let x = 0; x < fieldCols; x++) {
+            const nx = x / (fieldCols - 1);
+            const ny = y / (fieldRows - 1);
+            const f = sampleFlow(nx, ny, swirlAmt);
+            const i = (y * fieldCols + x) * 2;
+            field[i] = f.x; field[i + 1] = f.y;
+            const ci = (y * fieldCols + x) * 3;
+            colors[ci] = f.paint.r;
+            colors[ci + 1] = f.paint.g;
+            colors[ci + 2] = f.paint.b;
+          }
+        }
+      }
+
+      function fieldSample(px, py) {
+        const cellX = (px / W) * (fieldCols - 1);
+        const cellY = (py / H) * (fieldRows - 1);
+        const x0 = Math.max(0, Math.min(fieldCols - 2, Math.floor(cellX)));
+        const y0 = Math.max(0, Math.min(fieldRows - 2, Math.floor(cellY)));
+        const tx = cellX - x0, ty = cellY - y0;
+        const at = (x, y) => (y * fieldCols + x) * 2;
+        const cat = (x, y) => (y * fieldCols + x) * 3;
+        const i00 = at(x0, y0), i10 = at(x0 + 1, y0), i01 = at(x0, y0 + 1), i11 = at(x0 + 1, y0 + 1);
+        const vx =
+          field[i00] * (1 - tx) * (1 - ty) + field[i10] * tx * (1 - ty) +
+          field[i01] * (1 - tx) * ty + field[i11] * tx * ty;
+        const vy =
+          field[i00 + 1] * (1 - tx) * (1 - ty) + field[i10 + 1] * tx * (1 - ty) +
+          field[i01 + 1] * (1 - tx) * ty + field[i11 + 1] * tx * ty;
+        const c00 = cat(x0, y0), c10 = cat(x0 + 1, y0), c01 = cat(x0, y0 + 1), c11 = cat(x0 + 1, y0 + 1);
+        const r =
+          colors[c00] * (1 - tx) * (1 - ty) + colors[c10] * tx * (1 - ty) +
+          colors[c01] * (1 - tx) * ty + colors[c11] * tx * ty;
+        const g =
+          colors[c00 + 1] * (1 - tx) * (1 - ty) + colors[c10 + 1] * tx * (1 - ty) +
+          colors[c01 + 1] * (1 - tx) * ty + colors[c11 + 1] * tx * ty;
+        const b =
+          colors[c00 + 2] * (1 - tx) * (1 - ty) + colors[c10 + 2] * tx * (1 - ty) +
+          colors[c01 + 2] * (1 - tx) * ty + colors[c11 + 2] * tx * ty;
+        return { vx, vy, r, g, b };
+      }
+
+      function spawnOne() {
+        let x = Math.random(), y = Math.random();
+        if (Math.random() < 0.55) y = Math.random() * 0.72;
+        if (Math.random() < 0.2) { x = 0.5 + Math.random() * 0.42; y = 0.06 + Math.random() * 0.38; }
+        // Occasional cypress-side seeds so the left silhouette isn't an empty hole
+        if (Math.random() < 0.12) {
+          x = 0.06 + Math.random() * 0.16;
+          y = 0.2 + Math.random() * 0.55;
+        }
+        if (painting && Math.random() < 0.4) {
+          for (let k = 0; k < 6; k++) {
+            const tx = Math.random(), ty = Math.random() * 0.85;
+            const p = samplePainting(tx, ty);
+            // Prefer edges/mid tones — not only bright sky (that emptied the cypress)
+            if (p.edge > 0.18 || (p.lum > 0.22 && p.lum < 0.75)) { x = tx; y = ty; break; }
+          }
+        }
+        return { x: x * W, y: y * H, life: Math.random(), age: Math.random() * 160, size: 0.7 + Math.random() * 1.6 };
+      }
+
+      function spawnParticles(count, reset) {
+        count = Math.max(0, Math.min(MAX_DENSITY, count | 0));
+        if (reset || !particles.length) {
+          particles = Array.from({ length: count }, spawnOne);
+          return;
+        }
+        if (count > particles.length) {
+          for (let i = particles.length; i < count; i++) particles.push(spawnOne());
+        } else particles.length = count;
+      }
+
+      function paintBackdrop() {
+        glow.clearTrail();
+      }
+
+      function drawCypressHint() {}
+
+      function contextTrail() {
+        let fade = STROKE_FADE[strokeMode] || STROKE_FADE.balanced;
+        if (intro.active && live.speed < 0.08) fade = 0.02;
+        else if (intro.active) fade = Math.min(fade, 0.05);
+        if (mouse.down) fade = Math.min(0.2, fade + 0.035);
+        if (+ui.quality.value === 0) fade = Math.max(fade, 0.1);
+        return fade;
+      }
+
+      function syncSlidersFromLive() {
+        if (intro.active && !intro.userLocked) {
+          ui.speed.value = live.speed.toFixed(2);
+          ui.swirl.value = live.swirl.toFixed(2);
+          ui.density.value = String(Math.round(live.density));
+        }
+        syncLabels();
+      }
+
+      function syncLabels() {
+        ui.vSpeed.textContent = (+ui.speed.value).toFixed(2);
+        ui.vSwirl.textContent = (+ui.swirl.value).toFixed(2);
+        ui.vDensity.textContent = ui.density.value;
+        ui.vQuality.textContent = QUALITY_LABELS[+ui.quality.value] || "Auto";
+        ui.vStroke.textContent = strokeMode[0].toUpperCase() + strokeMode.slice(1);
+        ui.density.max = String(Math.min(MAX_DENSITY, autoDensityCap));
+      }
+
+      function resize(opts = {}) {
+        const resetParticles = opts.resetParticles !== false;
+        applyQualityPreset(+ui.quality.value);
+        W = window.innerWidth; H = window.innerHeight;
+        glow.resize(W, H, dpr);
+        glow.setBloom(+ui.quality.value === 0 ? 0 : bloomStrength);
+        const dens = Math.min(Math.round(live.density || +ui.density.value), autoDensityCap, MAX_DENSITY);
+        buildField();
+        spawnParticles(dens, resetParticles);
+        if (resetParticles) paintBackdrop();
+        syncLabels();
+      }
+
+      function applyQualityWithoutCanvasClear(q) {
+        ui.quality.value = String(q);
+        applyQualityPreset(q);
+        // Keep current canvas buffer; only retune bloom / field
+        glow.setBloom(q === 0 ? 0 : bloomStrength);
+        buildField();
+        syncLabels();
+      }
+
+      let paused = false;
+      let toastTimer = null;
+      let panelExpanded = false;
+      let seqAlpha = 1;
+      let motifPool = []; // {nx, ny, r, g, b} normalized around center
+      let motifReady = false;
+
+      const seq = {
+        // idle | fadeOut | text | storm | settle | hold | dissolve | nova | river
+        phase: "idle",
+        t0: 0,
+        idleSince: 0,
+        revealArmed: false,
+        buttonVisible: false,
+        savedSpeed: 0.75,
+        savedSwirl: 1.35,
+        savedBloom: 0.55,
+        savedDensity: 2000,
+        motifDensity: 2000,
+        clarity: 0, // 0 blob → 1 sharp silhouette
+        returnU: 0, // 0→1 across dissolve+nova+river
+      };
+
+      const SEQ = {
+        waitReveal: 5000,
+        fadeOut: 2600,
+        text: 2000,
+        storm: 4200,
+        settle: 9000,
+        dissolve: 1600,
+        nova: 3200,
+        river: 5500,
+      };
+
+      // Return spectacle: gold / cyan / magenta / cold white
+      const FLARE = [
+        { r: 246, g: 211, b: 90 },
+        { r: 90, g: 214, b: 255 },
+        { r: 255, g: 106, b: 213 },
+        { r: 235, g: 245, b: 255 },
+      ];
+
+      function returnPhaseProgress(now) {
+        const elapsed = now - seq.t0;
+        if (seq.phase === "dissolve") {
+          const local = Math.min(1, elapsed / SEQ.dissolve);
+          return { local, u: local * 0.15 };
+        }
+        if (seq.phase === "nova") {
+          const local = Math.min(1, elapsed / SEQ.nova);
+          return { local, u: 0.15 + local * 0.35 };
+        }
+        if (seq.phase === "river") {
+          const local = Math.min(1, elapsed / SEQ.river);
+          return { local, u: 0.5 + local * 0.5 };
+        }
+        return { local: 0, u: 0 };
+      }
+
+      function isReturning(phase) {
+        return phase === "dissolve" || phase === "nova" || phase === "river";
+      }
+
+      function shuffleInPlace(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = (Math.random() * (i + 1)) | 0;
+          const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+        }
+        return arr;
+      }
+
+      function isBgPixel(r, g, b, a) {
+        if (a < 28) return true;
+        const lum = (r + g + b) / 3;
+        // White paper + very pale fringe
+        if (lum > 248) return true;
+        if (lum > 236 && Math.max(r, g, b) - Math.min(r, g, b) < 14) return true;
+        return false;
+      }
+
+      function motifDisplayColor(r, g, b) {
+        // Shape first: keep luminance contrast so ears / scarf / bag read
+        const lum = (r + g + b) / 3;
+        const sat = Math.max(r, g, b) - Math.min(r, g, b);
+        if (lum < 70 && sat < 45) {
+          const t = lum / 70;
+          return {
+            r: Math.round(18 + t * 28),
+            g: Math.round(32 + t * 42),
+            b: Math.round(70 + t * 55),
+          };
+        }
+        if (lum > 185) {
+          return {
+            r: Math.min(255, Math.round(200 + (r - 200) * 0.4)),
+            g: Math.min(255, Math.round(205 + (g - 205) * 0.4)),
+            b: Math.min(255, Math.round(220 + (b - 220) * 0.35)),
+          };
+        }
+        return {
+          r: Math.min(255, Math.round(r * 0.85 + 40)),
+          g: Math.min(255, Math.round(g * 0.85 + 35)),
+          b: Math.min(255, Math.round(b * 0.85 + 45)),
+        };
+      }
+
+      function loadMotifMask() {
+        return new Promise((resolve) => {
+          const src = window.KITTEN_MOTIF_DATA_URL;
+          if (!src) {
+            motifReady = false;
+            resolve(false);
+            return;
+          }
+          const img = new Image();
+          img.onload = () => {
+            // Higher res → clearer ears / scarf / accessories
+            const maxSide = 420;
+            const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+            const iw = Math.max(1, Math.round(img.width * scale));
+            const ih = Math.max(1, Math.round(img.height * scale));
+            const off = document.createElement("canvas");
+            off.width = iw;
+            off.height = ih;
+            const octx = off.getContext("2d", { willReadFrequently: true });
+            octx.drawImage(img, 0, 0, iw, ih);
+            let data;
+            try {
+              data = octx.getImageData(0, 0, iw, ih).data;
+            } catch (err) {
+              console.warn("Motif sample failed", err);
+              motifReady = false;
+              resolve(false);
+              return;
+            }
+
+            const solid = new Uint8Array(iw * ih);
+            let minX = iw, minY = ih, maxX = 0, maxY = 0;
+            for (let y = 0; y < ih; y++) {
+              for (let x = 0; x < iw; x++) {
+                const i = (y * iw + x) * 4;
+                if (isBgPixel(data[i], data[i + 1], data[i + 2], data[i + 3])) continue;
+                solid[y * iw + x] = 1;
+                if (x < minX) minX = x;
+                if (y < minY) minY = y;
+                if (x > maxX) maxX = x;
+                if (y > maxY) maxY = y;
+              }
+            }
+
+            const body = [];
+            const edge = [];
+            const accent = [];
+            for (let y = 1; y < ih - 1; y++) {
+              for (let x = 1; x < iw - 1; x++) {
+                const idx = y * iw + x;
+                if (!solid[idx]) continue;
+                const i = idx * 4;
+                const r = data[i], g = data[i + 1], b = data[i + 2];
+                const lum = (r + g + b) / 3;
+                const sat = Math.max(r, g, b) - Math.min(r, g, b);
+                const col = motifDisplayColor(r, g, b);
+                const pt = { x, y, r: col.r, g: col.g, b: col.b, lum, sat };
+                const border =
+                  !solid[idx - 1] || !solid[idx + 1] ||
+                  !solid[idx - iw] || !solid[idx + iw];
+                if (border) edge.push(pt);
+                else if (lum > 150 || sat > 40) accent.push(pt);
+                else body.push(pt);
+              }
+            }
+
+            if (!edge.length && !body.length && !accent.length) {
+              motifReady = false;
+              resolve(false);
+              return;
+            }
+
+            // Shape-preserving budget: edges + accents first, then fill body
+            const budget = Math.min(MAX_DENSITY, 3000);
+            const takeEdge = Math.min(edge.length, Math.round(budget * 0.42));
+            const takeAccent = Math.min(accent.length, Math.round(budget * 0.22));
+            const takeBody = Math.min(body.length, budget - takeEdge - takeAccent);
+            const picked = []
+              .concat(shuffleInPlace(edge).slice(0, takeEdge))
+              .concat(shuffleInPlace(accent).slice(0, takeAccent))
+              .concat(shuffleInPlace(body).slice(0, takeBody));
+            shuffleInPlace(picked);
+
+            const bw = Math.max(1, maxX - minX);
+            const bh = Math.max(1, maxY - minY);
+            const cxImg = (minX + maxX) * 0.5;
+            const cyImg = (minY + maxY) * 0.5;
+            const maxDim = Math.max(bw, bh);
+            motifPool = picked.map((p) => ({
+              // Uniform scale → keeps ears / scarf proportions
+              u: (p.x - cxImg) / maxDim,
+              v: (p.y - cyImg) / maxDim,
+              r: p.r,
+              g: p.g,
+              b: p.b,
+              sharp: p.lum > 150 || p.sat > 40 ? 1 : 0,
+            }));
+            motifReady = true;
+            resolve(true);
+          };
+          img.onerror = () => {
+            motifReady = false;
+            resolve(false);
+          };
+          img.src = src;
+        });
+      }
+
+      function motifScreenPoint(u, v) {
+        // Slightly smaller than before so features don't melt together
+        const side = Math.min(W, H) * 0.58;
+        return {
+          x: W * 0.5 + u * side,
+          y: H * 0.5 + v * side,
+        };
+      }
+
+      function spawnFromEdges(i, n) {
+        const side = i % 4;
+        const t = (i / Math.max(1, n - 1));
+        const margin = 40 + Math.random() * 80;
+        if (side === 0) return { x: t * W + (Math.random() - 0.5) * 60, y: -margin };
+        if (side === 1) return { x: W + margin, y: t * H + (Math.random() - 0.5) * 60 };
+        if (side === 2) return { x: (1 - t) * W + (Math.random() - 0.5) * 60, y: H + margin };
+        return { x: -margin, y: (1 - t) * H + (Math.random() - 0.5) * 60 };
+      }
+
+      function assignMotifTargets(fromEdges) {
+        const m = motifPool.length;
+        if (!m) return;
+        // One particle per sample when possible — silhouette needs coverage
+        const want = Math.min(MAX_DENSITY, Math.max(m, 2200));
+        seq.motifDensity = want;
+        if (particles.length !== want) {
+          ui.density.value = String(want);
+          live.density = want;
+          spawnParticles(want, true);
+        }
+        const n = particles.length;
+        const order = shuffleInPlace(Array.from({ length: m }, (_, i) => i));
+        for (let i = 0; i < n; i++) {
+          const t = motifPool[order[i % m]];
+          const pt = motifScreenPoint(t.u, t.v);
+          const p = particles[i];
+          if (fromEdges) {
+            const e = spawnFromEdges(i, n);
+            p.x = e.x;
+            p.y = e.y;
+          }
+          p.tx = pt.x;
+          p.ty = pt.y;
+          p.tr = t.r;
+          p.tg = t.g;
+          p.tb = t.b;
+          p.sharp = t.sharp || 0;
+          p.motif = true;
+          p.stormPhase = Math.random() * Math.PI * 2;
+          p.stormRad = 0.18 + Math.random() * 0.55;
+          p.age = Math.random() * 40;
+          p.size = 0.55 + Math.random() * 0.85 + (t.sharp ? 0.15 : 0);
+        }
+      }
+
+      function clearMotifTargets() {
+        for (let i = 0; i < particles.length; i++) {
+          particles[i].motif = false;
+        }
+      }
+
+      function setRevealButton(visible, label) {
+        seq.buttonVisible = visible;
+        ui.seqBtn.textContent = label || "Reveal";
+        ui.seqBtn.classList.toggle("is-open", visible);
+        ui.seqBtn.disabled = !visible;
+        ui.hint.classList.toggle("with-reveal", visible);
+      }
+
+      function resetSequenceUI() {
+        seq.phase = "idle";
+        seq.revealArmed = false;
+        seq.idleSince = 0;
+        seq.clarity = 0;
+        seqAlpha = 1;
+        applyQualityPreset(+ui.quality.value || 0);
+        glow.setBloom(+ui.quality.value === 0 ? 0 : bloomStrength);
+        ui.motifText.classList.remove("show");
+        setRevealButton(false, "Reveal");
+        clearMotifTargets();
+      }
+
+      function armRevealAfterIdle(now) {
+        if (!motifReady) return;
+        seq.revealArmed = true;
+        seq.idleSince = now;
+      }
+
+      function beginReveal(now) {
+        if (seq.phase !== "idle" || !motifReady || intro.active) return;
+        seq.savedSpeed = +ui.speed.value || live.speed || 0.75;
+        seq.savedSwirl = +ui.swirl.value || live.swirl || 1.35;
+        seq.savedDensity = Math.min(
+          MAX_DENSITY,
+          Math.max(800, +ui.density.value || live.density || target.density || 2000)
+        );
+        seq.savedBloom = +ui.quality.value === 0 ? 0 : bloomStrength || 0.55;
+        seq.phase = "fadeOut";
+        seq.t0 = now;
+        seq.clarity = 0;
+        setRevealButton(false, "Reveal");
+        ui.motifText.classList.remove("show");
+        ui.brand.classList.add("dim");
+      }
+
+      function beginReturn(now) {
+        if (seq.phase !== "hold") return;
+        seq.phase = "dissolve";
+        seq.t0 = now;
+        seq.clarity = 1;
+        seq.returnU = 0;
+        seq.motifDensity = particles.length;
+        if (!seq.savedDensity) {
+          seq.savedDensity = Math.min(MAX_DENSITY, Math.max(800, +ui.density.value || 2000));
+        }
+        setRevealButton(false, "Return");
+        ui.motifText.classList.remove("show");
+        glow.clearTrail();
+
+        // Mild trim; density finishes during nova→river
+        const startDens = Math.round(
+          seq.motifDensity * 0.88 + seq.savedDensity * 0.12
+        );
+        live.density = startDens;
+        ui.density.value = String(startDens);
+        spawnParticles(startDens, false);
+        seq.motifDensity = startDens;
+
+        const cx = W * 0.5;
+        const cy = H * 0.5;
+        const n = particles.length;
+        for (let i = 0; i < n; i++) {
+          const p = particles[i];
+          const flare = FLARE[i % FLARE.length];
+          p.flareR = flare.r;
+          p.flareG = flare.g;
+          p.flareB = flare.b;
+          p.flareHue = i % FLARE.length;
+          p.skySeed = false;
+          p.motif = true;
+          // Inward inhale before nova blast
+          const dx = (p.x != null ? p.x : cx) - cx;
+          const dy = (p.y != null ? p.y : cy) - cy;
+          const dist = Math.hypot(dx, dy) + 1e-3;
+          const pull = 0.35 + Math.random() * 0.55;
+          p.vx = (-dx / dist) * pull;
+          p.vy = (-dy / dist) * pull;
+          p.burstReady = false;
+        }
+      }
+
+      function setReturnDensity(tAll) {
+        // tAll: 0 at dissolve start → 1 at river end
+        const dens = Math.round(
+          seq.motifDensity + (seq.savedDensity - seq.motifDensity) * easeInOutCubic(tAll)
+        );
+        if (Math.abs(dens - particles.length) >= 25) {
+          const prev = particles.length;
+          live.density = dens;
+          ui.density.value = String(dens);
+          spawnParticles(dens, false);
+          // New river particles get flare so they can twinkle into the field
+          for (let i = prev; i < particles.length; i++) {
+            const flare = FLARE[i % FLARE.length];
+            const p = particles[i];
+            p.flareR = flare.r;
+            p.flareG = flare.g;
+            p.flareB = flare.b;
+            p.flareHue = i % FLARE.length;
+            p.motif = false;
+            p.burstReady = false;
+          }
+        }
+      }
+
+      function updateSequence(now) {
+        // Arm Reveal chip ~5s after free flight
+        if (seq.phase === "idle" && seq.revealArmed && !seq.buttonVisible && !intro.active) {
+          if (now - seq.idleSince >= SEQ.waitReveal) {
+            setRevealButton(true, "Reveal");
+          }
+        }
+
+        if (seq.phase === "idle") return;
+
+        const elapsed = now - seq.t0;
+
+        if (seq.phase === "fadeOut") {
+          const t = Math.min(1, elapsed / SEQ.fadeOut);
+          const e = easeInOutCubic(t);
+          seqAlpha = 1 - e;
+          live.speed = seq.savedSpeed * (1 - e);
+          live.swirl = seq.savedSwirl * (1 - e);
+          ui.speed.value = live.speed.toFixed(2);
+          ui.swirl.value = live.swirl.toFixed(2);
+          if (t >= 1) {
+            seq.phase = "text";
+            seq.t0 = now;
+            seqAlpha = 0;
+            live.speed = 0;
+            live.swirl = 0;
+            glow.clearTrail();
+            ui.motifText.classList.add("show");
+          }
+          return;
+        }
+
+        if (seq.phase === "text") {
+          seqAlpha = 0;
+          if (elapsed > SEQ.text * 0.7) ui.motifText.classList.remove("show");
+          if (elapsed >= SEQ.text) {
+            seq.phase = "storm";
+            seq.t0 = now;
+            seq.clarity = 0;
+            ui.motifText.classList.remove("show");
+            assignMotifTargets(true);
+            glow.clearTrail();
+            seqAlpha = 1;
+          }
+          return;
+        }
+
+        if (seq.phase === "storm") {
+          const t = Math.min(1, elapsed / SEQ.storm);
+          // Soft blob forming while still chaotic
+          seq.clarity = easeOutCubic(t) * 0.28;
+          live.speed = 0.12;
+          live.swirl = 0.2;
+          if (t >= 1) {
+            seq.phase = "settle";
+            seq.t0 = now;
+          }
+          return;
+        }
+
+        if (seq.phase === "settle") {
+          const t = Math.min(1, elapsed / SEQ.settle);
+          // Soft blob → readable silhouette; life fades in before the phase ends
+          seq.clarity = 0.28 + easeInOutCubic(t) * 0.72;
+          live.speed = 0.04;
+          live.swirl = 0.08;
+          // Offer Return once the shape is mostly readable (no sudden chip pop at hold)
+          if (t > 0.72 && !seq.buttonVisible) setRevealButton(true, "Return");
+          if (t >= 1) {
+            seq.phase = "hold";
+            seq.t0 = now;
+            seq.clarity = 1;
+            if (!seq.buttonVisible) setRevealButton(true, "Return");
+            else ui.seqBtn.textContent = "Return";
+          }
+          return;
+        }
+
+        if (seq.phase === "hold") {
+          seq.clarity = 1;
+          seqAlpha = 1;
+          live.speed = 0.02;
+          live.swirl = 0.05;
+          return;
+        }
+
+        if (seq.phase === "dissolve") {
+          const t = Math.min(1, elapsed / SEQ.dissolve);
+          const e = easeInOutCubic(t);
+          seq.clarity = 1 - e * 0.65;
+          seq.returnU = t * 0.15;
+          live.speed = 0.04 + e * 0.12;
+          live.swirl = 0.08 + e * 0.35;
+          // Bloom climbs into the nova flash
+          bloomStrength = Math.max(seq.savedBloom, 0.45) * (0.75 + e * 0.55);
+          if (t >= 1) {
+            seq.phase = "nova";
+            seq.t0 = now;
+            const cx = W * 0.5;
+            const cy = H * 0.5;
+            for (let i = 0; i < particles.length; i++) {
+              const p = particles[i];
+              const dx = p.x - cx;
+              const dy = p.y - cy;
+              const outward = Math.atan2(dy, dx);
+              const tang = outward + Math.PI * 0.5;
+              const speed = 2.2 + Math.random() * 3.6 + (p.stormRad || 0.3) * 1.6;
+              const mix = 0.55 + Math.random() * 0.35;
+              p.vx = Math.cos(outward) * speed * (1 - mix) + Math.cos(tang) * speed * mix;
+              p.vy = Math.sin(outward) * speed * (1 - mix) + Math.sin(tang) * speed * mix;
+              p.burstReady = true;
+              p.motif = true;
+            }
+          }
+          return;
+        }
+
+        if (seq.phase === "nova") {
+          const t = Math.min(1, elapsed / SEQ.nova);
+          const e = easeOutCubic(t);
+          seq.clarity = 0.35 * (1 - e);
+          seq.returnU = 0.15 + t * 0.35;
+          live.speed = 0.16 + e * Math.max(0.55, seq.savedSpeed * 0.85);
+          live.swirl = 0.45 + e * Math.max(0.7, seq.savedSwirl * 0.7);
+          // Peak flash mid-nova then ease down
+          const flash = Math.sin(Math.min(1, t / 0.35) * Math.PI) * (t < 0.45 ? 1 : 0.55);
+          bloomStrength = Math.max(seq.savedBloom, 0.5) * (0.95 + flash * 0.55) + flash * 0.25;
+          if (t > 0.8) setReturnDensity((t - 0.8) / 0.2 * 0.2);
+          if (t >= 1) {
+            seq.phase = "river";
+            seq.t0 = now;
+            for (let i = 0; i < particles.length; i++) {
+              particles[i].motif = false;
+              particles[i].burstReady = false;
+            }
+          }
+          return;
+        }
+
+        if (seq.phase === "river") {
+          const t = Math.min(1, elapsed / SEQ.river);
+          const e = easeInOutCubic(t);
+          seq.clarity = 0;
+          seq.returnU = 0.5 + t * 0.5;
+          const startSpeed = 0.16 + Math.max(0.55, seq.savedSpeed * 0.85);
+          const startSwirl = 0.45 + Math.max(0.7, seq.savedSwirl * 0.7);
+          // Early river keeps high swirl (arm), then settles to saved
+          const armSwirl = startSwirl * (1.15 - e * 0.15);
+          live.speed = startSpeed + (seq.savedSpeed - startSpeed) * e;
+          live.swirl = armSwirl + (seq.savedSwirl - armSwirl) * easeInOutCubic(Math.max(0, (t - 0.35) / 0.65));
+          ui.speed.value = live.speed.toFixed(2);
+          ui.swirl.value = live.swirl.toFixed(2);
+          setReturnDensity(0.2 + t * 0.8);
+          const idleBloom = +ui.quality.value === 0 ? 0 : seq.savedBloom;
+          bloomStrength = Math.max(seq.savedBloom, 0.5) * (1.05 - 0.25 * e) + idleBloom * e;
+          if (t >= 1) {
+            seq.phase = "idle";
+            seq.returnU = 0;
+            clearMotifTargets();
+            live.speed = seq.savedSpeed;
+            live.swirl = seq.savedSwirl;
+            live.density = seq.savedDensity;
+            bloomStrength = idleBloom;
+            ui.speed.value = live.speed.toFixed(2);
+            ui.swirl.value = live.swirl.toFixed(2);
+            ui.density.value = String(Math.round(seq.savedDensity));
+            spawnParticles(seq.savedDensity, false);
+            for (let i = 0; i < particles.length; i++) {
+              particles[i].skySeed = false;
+              particles[i].vx = 0;
+              particles[i].vy = 0;
+              particles[i].burstReady = false;
+            }
+            armRevealAfterIdle(now);
+            setRevealButton(false, "Reveal");
+            syncLabels();
+          }
+        }
+      }
+
+      function showToast(msg) {
+        ui.toast.textContent = msg;
+        ui.toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => ui.toast.classList.remove("show"), 1600);
+      }
+
+      function setPanelExpanded(open) {
+        panelExpanded = open;
+        ui.panel.classList.toggle("is-open", open);
+        ui.toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        ui.toggle.textContent = open ? "Close" : "Controls";
+      }
+
+      function revealPanelSoft() {
+        // Immersive default: only the Controls chip, panel stays collapsed
+        let waits = 0;
+        const tick = () => {
+          waits += 1;
+          if (waits < 3) {
+            requestAnimationFrame(tick);
+            return;
+          }
+          ui.phase.classList.add("hide");
+          ui.toggle.classList.add("is-open");
+          ui.hint.classList.add("dim");
+          setPanelExpanded(false);
+          requestAnimationFrame(() => ui.brand.classList.add("dim"));
+          armRevealAfterIdle(performance.now());
+        };
+        requestAnimationFrame(tick);
+      }
+
+      function saveScreenshot() {
+        try {
+          const url = canvas.toDataURL("image/png");
+          const a = document.createElement("a");
+          const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+          a.href = url;
+          a.download = `starry-night-${stamp}.png`;
+          a.click();
+          showToast("Screenshot saved");
+        } catch (err) {
+          showToast("Save failed");
+          console.error(err);
+        }
+      }
+
+      function togglePause() {
+        if (intro.active) return;
+        paused = !paused;
+        ui.pauseBadge.classList.toggle("show", paused);
+      }
+
+      function setPhase(id, title, sub) {
+        if (intro.phase === id) return;
+        intro.phase = id;
+        ui.phase.classList.remove("hide");
+        ui.phase.innerHTML = `${title}<strong>${sub}</strong>`;
+      }
+
+      let lastSpawnedDensity = -1;
+      let lastSliderSync = 0;
+      let pendingQualityBoost = null;
+
+      function startIntro(now) {
+        intro.active = true;
+        intro.t0 = now;
+        intro.userLocked = false;
+        intro.phase = "";
+        live.speed = 0; live.swirl = 0; live.density = 0;
+        lastSpawnedDensity = -1;
+        if (pendingQualityBoost) {
+          clearTimeout(pendingQualityBoost);
+          pendingQualityBoost = null;
+        }
+        ui.speed.value = "0"; ui.swirl.value = "0"; ui.density.value = "0";
+        ui.quality.value = "0";
+        applyQualityPreset(0);
+        ui.panel.classList.remove("is-open");
+        ui.toggle.classList.remove("is-open");
+        ui.hint.classList.remove("dim");
+        ui.brand.classList.remove("dim");
+        ui.pauseBadge.classList.remove("show");
+        paused = false;
+        panelExpanded = false;
+        resetSequenceUI();
+        setPhase("gather", "Still night", "particles gathering");
+        spawnParticles(0, true);
+        paintBackdrop();
+        syncLabels();
+      }
+
+      function updateIntro(now) {
+        if (!intro.active) return;
+        const u = Math.min(1, (now - intro.t0) / intro.duration);
+
+        // Static gather ~3x longer (~9.4s), then flow / swirl as before
+        const densT = easeInOutCubic(Math.min(1, u / 0.67));
+        const flowT = smoothstep(Math.max(0, Math.min(1, (u - 0.64) / 0.2)));
+        const swirlT = easeInOutCubic(Math.max(0, Math.min(1, (u - 0.75) / 0.25)));
+
+        if (u < 0.64) setPhase("gather", "Still night", "particles gathering");
+        else if (u < 0.78) setPhase("flow", "Wind rises", "flow awakening");
+        else setPhase("swirl", "The sky turns", "swirl unfolding");
+
+        if (!intro.userLocked) {
+          live.density = densT * Math.min(target.density, autoDensityCap, MAX_DENSITY);
+          live.speed = flowT * Math.min(1, target.speed);
+          live.swirl = swirlT * Math.min(2.2, target.swirl);
+          const densInt = Math.round(live.density);
+          if (Math.abs(densInt - lastSpawnedDensity) >= 40 || densInt === Math.round(Math.min(target.density, autoDensityCap))) {
+            spawnParticles(densInt, false);
+            lastSpawnedDensity = densInt;
+          }
+          if (now - lastSliderSync > 120) {
+            syncSlidersFromLive();
+            lastSliderSync = now;
+          }
+        }
+
+        if (u >= 1) {
+          intro.active = false;
+          if (!intro.userLocked) {
+            live.speed = Math.min(1, target.speed);
+            live.swirl = Math.min(2.2, target.swirl);
+            live.density = Math.min(target.density, autoDensityCap, MAX_DENSITY);
+            ui.speed.value = live.speed.toFixed(2);
+            ui.swirl.value = live.swirl.toFixed(2);
+            ui.density.value = String(Math.round(live.density));
+            ui.quality.value = "0";
+            syncLabels();
+            // Soft quality label/cap update only — never wipe the canvas
+            pendingQualityBoost = setTimeout(() => {
+              pendingQualityBoost = null;
+              if (intro.active) return;
+              applyQualityWithoutCanvasClear(target.quality);
+            }, 1600);
+          }
+          revealPanelSoft();
+        }
+      }
+
+      let frames = 0, lastFps = performance.now(), lastField = 0, lastFrame = performance.now();
+
+      function throttleIfNeeded(fps) {
+        fpsEma = fpsEma * 0.85 + fps * 0.15;
+        if (+ui.quality.value !== 1 || intro.active) return;
+        const current = +ui.density.value;
+        if (fpsEma < 32 && current > 1200) {
+          const next = Math.max(1200, Math.round(current * 0.85 / 100) * 100);
+          ui.density.value = String(next);
+          live.density = next;
+          spawnParticles(next, false);
+          syncLabels();
+        }
+      }
+
+      function frame(now) {
+        const dt = Math.min(33, now - lastFrame);
+        lastFrame = now;
+        updateIntro(now);
+        updateSequence(now);
+
+        if (paused) {
+          requestAnimationFrame(frame);
+          return;
+        }
+
+        const inSeqMotion = seq.phase !== "idle";
+        const returning = isReturning(seq.phase);
+        if ((!intro.active || intro.userLocked) && !inSeqMotion) {
+          live.speed = +ui.speed.value;
+          live.swirl = +ui.swirl.value;
+          live.density = +ui.density.value;
+        }
+        // During return, density is owned by setReturnDensity — don't fight it
+
+        trailFade = contextTrail();
+        const motifLive = seq.phase === "storm" || seq.phase === "settle" || seq.phase === "hold";
+        const dissolving = seq.phase === "dissolve";
+        const novating = seq.phase === "nova";
+        const rivering = seq.phase === "river";
+        const idleTrail = contextTrail();
+        const retProg = returning ? returnPhaseProgress(now) : { local: 0, u: 0 };
+        if (motifLive) {
+          // Continuous crisp → no bloom/trail jump when settle becomes hold
+          const crisp = seq.clarity;
+          trailFade = STROKE_FADE.spark + (0.2 - STROKE_FADE.spark) * crisp;
+          bloomStrength = seq.savedBloom * (1 - crisp * 0.55) + 0.2 * crisp;
+        } else if (returning) {
+          // Longer trails during nova for colorful spiral ribbons
+          if (dissolving) {
+            trailFade = idleTrail * (0.9 + retProg.local * 0.35);
+          } else if (novating) {
+            trailFade = Math.min(0.22, idleTrail * (1.35 + Math.sin(retProg.local * Math.PI) * 0.55));
+          } else {
+            trailFade = idleTrail * (1.15 - retProg.local * 0.2);
+          }
+        }
+        glow.setTrailDamp(trailFade);
+        const bloomOut = (+ui.quality.value === 0 && seq.phase === "idle") ? 0 : bloomStrength;
+        glow.setBloom(bloomOut);
+
+        if (now - lastField > fieldInterval) {
+          time += 0.03 * (dt / 16.7);
+          mouse.x += (mouse.tx - mouse.x) * 0.12;
+          mouse.y += (mouse.ty - mouse.y) * 0.12;
+          buildField();
+          lastField = now;
+        }
+
+        const speed = live.speed;
+        const motion = smoothstep(Math.min(1, speed / 0.55));
+        const crawl = speed > 0.001 ? Math.pow(speed, 1.05) : 0;
+        const count = particles.length;
+        const storming = seq.phase === "storm";
+        const settling = seq.phase === "settle" || seq.phase === "hold";
+        const clarity = seq.clarity;
+        // Life rises through late settle so hold never "turns on" abruptly
+        const life = seq.phase === "hold"
+          ? 1
+          : seq.phase === "settle"
+            ? smoothstep((clarity - 0.48) / 0.5)
+            : 0;
+        const cx = W * 0.5;
+        const cy = H * 0.5;
+        const stormT = storming ? Math.min(1, (now - seq.t0) / SEQ.storm) : 1;
+        const dissolveT = dissolving ? retProg.local : 0;
+        const novaT = novating ? retProg.local : 0;
+        const riverT = rivering ? retProg.local : 0;
+        const returnU = retProg.u;
+        gpuList.length = 0;
+
+        for (let i = 0; i < count; i++) {
+          const p = particles[i];
+          const s = fieldSample(p.x, p.y);
+          const len = Math.hypot(s.vx, s.vy) + 1e-4;
+          const step = (1.35 + p.size) * crawl * 2.2;
+
+          if (dissolving) {
+            // Hold silhouette while edge burns — still attract to motif + radial shimmer
+            if (p.tx != null) {
+              const attract = 0.045 + (1 - dissolveT) * 0.08;
+              const edgeBurn = dissolveT * dissolveT;
+              const dx = p.x - cx;
+              const dy = p.y - cy;
+              const dist = Math.hypot(dx, dy) + 1e-3;
+              const shiver = edgeBurn * (2.5 + (p.stormRad || 0.3) * 6);
+              p.x += (p.tx - p.x) * attract + (dx / dist) * shiver * (Math.random() - 0.35);
+              p.y += (p.ty - p.y) * attract + (dy / dist) * shiver * (Math.random() - 0.35);
+            }
+            // Soft inhale
+            p.x += (p.vx || 0) * (1 - dissolveT * 0.7);
+            p.y += (p.vy || 0) * (1 - dissolveT * 0.7);
+            p.vx *= 0.92;
+            p.vy *= 0.92;
+          } else if (novating) {
+            const drag = 0.978 - novaT * 0.012;
+            p.vx = (p.vx || 0) * drag;
+            p.vy = (p.vy || 0) * drag;
+            // Strong spiral: tangential shove + growing flow mix
+            const spin = 0.055 * (1 - novaT * 0.4);
+            const nx = p.vx;
+            p.vx += -p.vy * spin + (Math.random() - 0.5) * 0.55 * (1 - novaT * 0.6);
+            p.vy += nx * spin + (Math.random() - 0.5) * 0.55 * (1 - novaT * 0.6);
+            const flowMix = easeInOutCubic(novaT) * 0.9;
+            p.vx += (s.vx / len) * step * flowMix;
+            p.vy += (s.vy / len) * step * flowMix;
+            p.x += p.vx;
+            p.y += p.vy;
+            // Late nova: some particles already ride the field as river seeds
+            if (novaT > 0.55 && Math.random() < 0.012 + novaT * 0.02) {
+              p.motif = false;
+              p.burstReady = false;
+              p.vx *= 0.4;
+              p.vy *= 0.4;
+            }
+          } else if (rivering) {
+            if (step > 0.001) {
+              p.x += (s.vx / len) * step;
+              p.y += (s.vy / len) * step;
+            }
+            // Early river: extra tangential twist → visible galactic arm
+            const arm = (1 - easeOutCubic(Math.min(1, riverT / 0.45))) * 0.55;
+            if (arm > 0.02) {
+              const dx = p.x - cx;
+              const dy = p.y - cy;
+              p.x += -dy * 0.0045 * arm;
+              p.y += dx * 0.0045 * arm;
+            }
+            const coast = (1 - easeOutCubic(riverT)) * 0.42;
+            if (p.vx || p.vy) {
+              p.x += (p.vx || 0) * coast;
+              p.y += (p.vy || 0) * coast;
+              p.vx *= 0.84;
+              p.vy *= 0.84;
+            }
+            p.motif = false;
+          } else if (p.motif && p.tx != null && (storming || settling)) {
+            if (storming) {
+              // Fly inward from edges while swirling around a loose cloud
+              const pull = 0.012 + stormT * 0.028;
+              const ang = p.stormPhase + time * (1.4 + p.stormRad);
+              const swirlR = (1 - stormT) * (90 + p.stormRad * 160) + (1 - stormT * stormT) * 40;
+              const cloudX = p.tx + Math.cos(ang) * swirlR * (0.55 + (1 - stormT));
+              const cloudY = p.ty + Math.sin(ang * 1.15) * swirlR * (0.55 + (1 - stormT));
+              // Mix edge → storm cloud → soft target
+              const toCloud = 0.55 + stormT * 0.35;
+              const aimX = cloudX * toCloud + p.tx * (1 - toCloud);
+              const aimY = cloudY * toCloud + p.ty * (1 - toCloud);
+              p.x += (aimX - p.x) * pull;
+              p.y += (aimY - p.y) * pull;
+              // Orbital shove
+              p.x += (-(p.y - cy) * 0.018 + (Math.random() - 0.5) * 1.8) * (1 - stormT * 0.5);
+              p.y += ((p.x - cx) * 0.018 + (Math.random() - 0.5) * 1.8) * (1 - stormT * 0.5);
+            } else {
+              const attract = 0.04 + clarity * clarity * 0.2;
+              // Forming noise fades out as life/breath fades in
+              const formJitter = (1 - clarity) * (1 - clarity) * (14 + p.stormRad * 18) * (1 - life);
+              const breath = 1 + life * Math.sin(time * 0.55) * 0.012;
+              const swayX = life * Math.sin(time * 0.42) * 2.8;
+              const swayY = life * Math.cos(time * 0.33) * 2.0;
+              const localAmp = life * (1.6 + p.stormRad * 2.4 + (p.sharp ? 0.6 : 0));
+              const localX = Math.sin(time * 1.55 + p.stormPhase) * (localAmp + formJitter);
+              const localY = Math.cos(time * 1.25 + p.stormPhase * 1.3) * (localAmp * 0.85 + formJitter);
+              const aimX = (p.tx - cx) * breath + cx + swayX + localX;
+              const aimY = (p.ty - cy) * breath + cy + swayY + localY;
+              p.x += (aimX - p.x) * attract;
+              p.y += (aimY - p.y) * attract;
+            }
+          } else if (step > 0.001) {
+            p.x += (s.vx / len) * step;
+            p.y += (s.vy / len) * step;
+          }
+          p.age += 0.25 + motion * 0.85;
+
+          // Idle look — blend target so river never hard-cuts style
+          const idleA = (0.22 + 0.55 * (1 - (p.age % 180) / 180)) * (0.35 + 0.65 * Math.max(motion, 0.2));
+          const idleSz = p.size * (1.8 - motion * 0.55) * (0.85 + (s.r + s.g + s.b) / 900);
+          let a = idleA;
+          let sz = idleSz;
+          let pr = s.r, pg = s.g, pb = s.b;
+
+          if (returning) {
+            const fr = p.flareR != null ? p.flareR : 246;
+            const fg = p.flareG != null ? p.flareG : 211;
+            const fb = p.flareB != null ? p.flareB : 90;
+            const mr = p.tr != null ? p.tr : s.r;
+            const mg = p.tg != null ? p.tg : s.g;
+            const mb = p.tb != null ? p.tb : s.b;
+            const u = returnU;
+            let flareW = 0;
+            let motifW = 0;
+            if (u < 0.15) {
+              // Burn-through: brighten motif, tip edges into flare
+              const t = u / 0.15;
+              motifW = 1 - t * 0.35;
+              flareW = 0.25 + t * 0.55;
+              const edge = Math.min(1, Math.hypot(p.x - cx, p.y - cy) / (Math.min(W, H) * 0.28));
+              flareW *= 0.45 + edge * 0.7;
+            } else if (u < 0.5) {
+              // Flare-dominant colorful spiral
+              const t = (u - 0.15) / 0.35;
+              flareW = 0.85 - t * 0.35;
+              motifW = Math.max(0, 0.25 * (1 - t));
+            } else {
+              // Field color with ~8% lingering flare stars
+              const t = (u - 0.5) / 0.5;
+              flareW = (1 - t) * 0.22;
+              if ((p.flareHue === 0 || p.flareHue === 2) && Math.sin(time * 3.1 + i * 0.7) > 0.72) {
+                flareW = 0.35 + (1 - t) * 0.4;
+              }
+            }
+            const fieldW = Math.max(0, 1 - flareW - motifW);
+            pr = mr * motifW + fr * flareW + s.r * fieldW;
+            pg = mg * motifW + fg * flareW + s.g * fieldW;
+            pb = mb * motifW + fb * flareW + s.b * fieldW;
+
+            if (dissolving) {
+              const pulse = 1 + dissolveT * 0.55 + Math.sin(time * 4 + (p.stormPhase || 0)) * 0.08;
+              a = Math.min(1, (0.55 + dissolveT * 0.35) * pulse);
+              sz = p.size * (1.15 + dissolveT * 0.55) * pulse;
+            } else if (novating) {
+              const ribbon = 1.15 + (1 - novaT) * 0.7 + Math.sin(time * 5 + i) * 0.06;
+              a = Math.min(1, 0.72 * (1 - novaT * 0.25) + idleA * easeInOutCubic(novaT));
+              sz = (p.size * (1.4 + (1 - novaT) * 0.9)) * ribbon * (1 - novaT * 0.35) + idleSz * easeInOutCubic(novaT);
+            } else {
+              // river — bright stars then settle
+              const starPop = riverT < 0.4 && (i % 11 === 0)
+                ? 1.35 + Math.sin(time * 4.5 + i) * 0.25
+                : 1;
+              a = idleA * (0.9 + (1 - riverT) * 0.2) * Math.min(1.2, starPop);
+              sz = idleSz * starPop;
+            }
+          } else if (p.motif && (storming || settling)) {
+            const blend = Math.min(1, 0.35 + clarity * 0.65);
+            pr = s.r * (1 - blend) + p.tr * blend;
+            pg = s.g * (1 - blend) + p.tg * blend;
+            pb = s.b * (1 - blend) + p.tb * blend;
+            // Soft fat beads early → small crisp points late (shape becomes readable)
+            const sizeMul = storming
+              ? 1.7 - stormT * 0.35
+              : 1.55 - clarity * 0.95 + (p.sharp ? 0.12 : 0);
+            sz = Math.max(0.35, p.size * sizeMul);
+            a = Math.min(1, (0.45 + blend * 0.5) * (0.75 + clarity * 0.35));
+            if (p.sharp && clarity > 0.55) a = Math.min(1, a + 0.2);
+            if (life > 0.01) {
+              const twinkle = 1 - life * (0.12 - 0.12 * Math.sin(time * 2.2 + p.stormPhase * 2.1));
+              a = Math.min(1, a * twinkle);
+              sz *= 1 - life * (0.06 - 0.1 * Math.sin(time * 1.7 + p.stormPhase));
+            }
+          }
+
+          a *= seqAlpha;
+
+          if (a > 0.01) {
+            gpuList.push({
+              x: p.x,
+              y: p.y,
+              r: pr,
+              g: pg,
+              b: pb,
+              size: sz,
+              alpha: Math.min(1, a * (0.75 + (motifLive ? (1 - clarity) * 0.15 : bloomStrength * 0.25))),
+            });
+          }
+
+          // Off-screen during return → respawn into upper starfield
+          if (returning) {
+            if (p.x < -40 || p.x > W + 40 || p.y < -40 || p.y > H + 40) {
+              const n = spawnOne();
+              p.x = n.x;
+              p.y = n.y;
+              p.life = n.life;
+              p.age = n.age;
+              p.size = n.size;
+              p.motif = false;
+              p.burstReady = false;
+              p.skySeed = false;
+              p.vx = 0;
+              p.vy = 0;
+              if (p.flareR == null) {
+                const flare = FLARE[i % FLARE.length];
+                p.flareR = flare.r;
+                p.flareG = flare.g;
+                p.flareB = flare.b;
+                p.flareHue = i % FLARE.length;
+              }
+            }
+          } else if (!motifLive && (p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20 || p.age > 220 + p.life * 100)) {
+            const n = spawnOne();
+            p.x = n.x; p.y = n.y; p.life = n.life; p.age = 0; p.size = n.size;
+            p.motif = false;
+            p.skySeed = false;
+            p.vx = 0; p.vy = 0;
+          }
+        }
+
+        glow.writeParticles(gpuList);
+        glow.render();
+
+        frames++;
+        if (now - lastFps > 500) {
+          const fps = Math.round((frames * 1000) / (now - lastFps));
+          ui.fps.textContent = fps + " fps";
+          ui.fps.style.color = fps < 40 ? "#f0a050" : "";
+          if (seq.phase === "idle") throttleIfNeeded(fps);
+          frames = 0; lastFps = now;
+        }
+        requestAnimationFrame(frame);
+      }
+
+      function lockFromUser() {
+        if (intro.active) intro.userLocked = true;
+        live.speed = +ui.speed.value;
+        live.swirl = +ui.swirl.value;
+        live.density = +ui.density.value;
+        target.speed = live.speed;
+        target.swirl = live.swirl;
+        target.density = live.density;
+        target.quality = +ui.quality.value;
+      }
+
+      ui.speed.addEventListener("input", () => { lockFromUser(); syncLabels(); });
+      ui.swirl.addEventListener("input", () => { lockFromUser(); syncLabels(); buildField(); });
+      ui.density.addEventListener("input", () => {
+        const capped = Math.min(+ui.density.value, autoDensityCap, MAX_DENSITY);
+        ui.density.value = String(capped);
+        lockFromUser();
+        spawnParticles(capped, false);
+        syncLabels();
+      });
+      ui.quality.addEventListener("input", () => {
+        lockFromUser();
+        target.quality = +ui.quality.value;
+        resize({ resetParticles: false });
+      });
+
+      ui.strokeRow.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-stroke]");
+        if (!btn) return;
+        strokeMode = btn.dataset.stroke;
+        ui.strokeRow.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b === btn));
+        syncLabels();
+      });
+
+      ui.replay.addEventListener("click", () => {
+        target.speed = Math.min(1, Math.max(0.55, +ui.speed.value || 0.75));
+        target.swirl = Math.min(2.2, Math.max(1.0, +ui.swirl.value || 1.35));
+        target.density = Math.min(MAX_DENSITY, Math.max(1600, +ui.density.value || 2400));
+        target.quality = Math.max(1, +ui.quality.value || 1);
+        startIntro(performance.now());
+        resize({ resetParticles: true });
+      });
+
+      ui.perf.addEventListener("click", () => {
+        intro.active = false;
+        intro.userLocked = true;
+        ui.quality.value = "0";
+        ui.speed.value = "0.55";
+        ui.swirl.value = "0.85";
+        ui.density.value = "1600";
+        strokeMode = "spark";
+        ui.strokeRow.querySelectorAll("button").forEach((b) => {
+          b.classList.toggle("active", b.dataset.stroke === "spark");
+        });
+        live.speed = 0.55; live.swirl = 0.85; live.density = 1600;
+        target.speed = 0.55; target.swirl = 0.85; target.density = 1600; target.quality = 0;
+        ui.phase.classList.add("hide");
+        ui.toggle.classList.add("is-open");
+        ui.hint.classList.add("dim");
+        ui.brand.classList.add("dim");
+        setPanelExpanded(true);
+        resize({ resetParticles: false });
+        spawnParticles(1600, false);
+        syncLabels();
+        resetSequenceUI();
+        armRevealAfterIdle(performance.now());
+      });
+
+      ui.toggle.addEventListener("click", () => {
+        if (intro.active) return;
+        setPanelExpanded(!panelExpanded);
+      });
+
+      ui.seqBtn.addEventListener("click", () => {
+        if (intro.active) return;
+        const now = performance.now();
+        if (seq.phase === "idle") beginReveal(now);
+        else if (seq.phase === "hold") beginReturn(now);
+      });
+      ui.seqBtn.disabled = true;
+
+      window.addEventListener("keydown", (e) => {
+        if (e.target && /^(INPUT|TEXTAREA|SELECT)$/i.test(e.target.tagName)) return;
+        const key = e.key;
+        if (key === " " || key === "Spacebar") {
+          e.preventDefault();
+          togglePause();
+        } else if (key === "s" || key === "S") {
+          e.preventDefault();
+          saveScreenshot();
+        } else if (key === "c" || key === "C") {
+          if (intro.active) return;
+          e.preventDefault();
+          ui.toggle.classList.add("is-open");
+          setPanelExpanded(!panelExpanded);
+        } else if (key === "Escape" && panelExpanded) {
+          setPanelExpanded(false);
+        }
+      });
+
+      window.addEventListener("pointermove", (e) => {
+        mouse.tx = e.clientX / W; mouse.ty = e.clientY / H;
+      });
+      window.addEventListener("pointerdown", (e) => {
+        mouse.down = true; mouse.tx = e.clientX / W; mouse.ty = e.clientY / H;
+      });
+      window.addEventListener("pointerup", () => { mouse.down = false; });
+      window.addEventListener("resize", () => resize());
+
+      Promise.all([
+        loadPainting().catch(() => { painting = null; }),
+        loadMotifMask(),
+      ]).finally(() => {
+          ui.boot.classList.add("hide");
+          setTimeout(() => ui.boot.remove(), 900);
+          resize();
+          void ui.panel.offsetWidth;
+          void ui.toggle.offsetWidth;
+          startIntro(performance.now());
+          requestAnimationFrame(frame);
+        });
+    })();
+  </script>
+</body>
+</html>

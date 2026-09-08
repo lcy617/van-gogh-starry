@@ -7,6 +7,7 @@ function createGlowRenderer(canvas) {
     antialias: false,
     premultipliedAlpha: false,
     powerPreference: "high-performance",
+    preserveDrawingBuffer: true,
   });
   if (!gl) throw new Error("WebGL2 not available");
 

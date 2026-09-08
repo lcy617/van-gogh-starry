@@ -30,7 +30,7 @@ Files that must stay together:
 
 About **5 seconds after the intro ends**, a **Reveal** chip appears (bottom-left). It does **not** paste an image — stars rearrange into a silhouette sampled from a private mask.
 
-Sequence: fade → **For you.** → particles rush in from the edges through a short **storm**, then **slowly settle** from a soft blob into a readable shape (breathing fades in as it clarifies). **Return** dissolves the silhouette while a star-river layer is already present, then eases density and flow back — no empty-sky refill pop.
+Sequence: fade → **For you.** → particles rush in from the edges through a short **storm**, then **slowly settle** from a soft blob into a readable shape (breathing fades in as it clarifies). **Return** bursts into stardust, then locks into the star-river as main orbit (same density, no thin-out / flash handoff).
 
 ## Settings
 

@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Van Gogh — Starry Night</title>
+  <title>梵高 · 星月夜</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500&family=Noto+Serif+SC:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
     :root {
       --ink: #071018;
@@ -34,21 +34,32 @@
     .brand.dim { opacity: 0.22; }
     .brand.dim p { opacity: 0; }
     .brand h1 {
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-weight: 600;
-      font-size: clamp(2rem, 5vw, 3.6rem);
-      line-height: 0.95;
-      letter-spacing: 0.02em;
-      color: #eef3ff;
-      text-shadow: 0 0 40px rgba(90, 140, 255, 0.35);
+      font-family: "Noto Serif SC", "Songti SC", "SimSun", "Cormorant Garamond", Georgia, serif;
+      font-weight: 500;
+      font-size: clamp(2.35rem, 5.2vw, 3.7rem);
+      line-height: 1.15;
+      letter-spacing: 0.32em;
+      padding-left: 0.08em;
+      color: rgba(236, 242, 255, 0.96);
+      text-shadow:
+        0 0 1px rgba(180, 200, 255, 0.35),
+        0 0 36px rgba(90, 140, 255, 0.28);
     }
     .brand h1 em {
-      font-style: italic; color: var(--gold);
-      text-shadow: 0 0 28px rgba(240, 193, 75, 0.35);
+      font-style: normal;
+      font-weight: 600;
+      color: var(--gold);
+      text-shadow:
+        0 0 1px rgba(255, 220, 140, 0.45),
+        0 0 28px rgba(240, 193, 75, 0.42);
     }
     .brand p {
-      margin-top: 0.7rem; font-size: 0.92rem; line-height: 1.45;
-      color: rgba(210, 222, 255, 0.7); max-width: 26rem;
+      margin-top: 0.85rem;
+      font-size: 0.88rem;
+      line-height: 1.65;
+      letter-spacing: 0.06em;
+      color: rgba(210, 222, 255, 0.62);
+      max-width: 22rem;
       transition: opacity 0.8s ease;
     }
     .toggle {
@@ -168,7 +179,7 @@
     .row label {
       display: flex; justify-content: space-between;
       font-size: 0.72rem; letter-spacing: 0.04em;
-      text-transform: uppercase; color: rgba(200, 214, 255, 0.65);
+      color: rgba(200, 214, 255, 0.65);
     }
     .row label span:last-child {
       color: rgba(240, 193, 75, 0.9);
@@ -298,49 +309,49 @@
 <body>
   <canvas id="c"></canvas>
   <div class="hud">
-    <div class="boot" id="boot"><span>Unfolding the night…</span></div>
+    <div class="boot" id="boot"><span>夜色徐徐展开…</span></div>
     <div class="brand" id="brand">
-      <h1>The <em>Starry</em> Night</h1>
-      <p>The sky wakes from silence. Move to stir it; drag to deepen the swirl.</p>
+      <h1>星<em>月</em>夜</h1>
+      <p>静夜自寂中苏醒。轻移搅动星空，拖曳加深漩涡。</p>
     </div>
-    <div class="motif-text" id="motifText">For you.</div>
-    <div class="pause-badge" id="pauseBadge">Paused</div>
-    <div class="toast" id="toast">Saved</div>
+    <div class="motif-text" id="motifText">予你。</div>
+    <div class="pause-badge" id="pauseBadge">已暂停</div>
+    <div class="toast" id="toast">已保存</div>
     <div class="panel" id="panel">
-      <h2>Atmosphere</h2>
+      <h2>天象</h2>
       <div class="row">
-        <label><span>Flow</span><span id="v-speed">0.00</span></label>
+        <label><span>流速</span><span id="v-speed">0.00</span></label>
         <input id="speed" type="range" min="0" max="1" step="0.01" value="0" />
       </div>
       <div class="row">
-        <label><span>Swirl</span><span id="v-swirl">0.00</span></label>
+        <label><span>漩涡</span><span id="v-swirl">0.00</span></label>
         <input id="swirl" type="range" min="0" max="2.2" step="0.05" value="0" />
       </div>
       <div class="row">
-        <label><span>Density</span><span id="v-density">0</span></label>
+        <label><span>密度</span><span id="v-density">0</span></label>
         <input id="density" type="range" min="0" max="3000" step="100" value="0" />
       </div>
       <div class="row">
-        <label><span>Quality</span><span id="v-quality">Low</span></label>
+        <label><span>画质</span><span id="v-quality">低</span></label>
         <input id="quality" type="range" min="0" max="2" step="1" value="0" />
       </div>
       <div class="row">
-        <label><span>Stroke</span><span id="v-stroke">Balanced</span></label>
+        <label><span>笔触</span><span id="v-stroke">匀润</span></label>
       </div>
       <div class="stroke-row" id="strokeRow">
-        <button type="button" data-stroke="ink">Ink</button>
-        <button type="button" data-stroke="balanced" class="active">Balanced</button>
-        <button type="button" data-stroke="spark">Spark</button>
+        <button type="button" data-stroke="ink">墨迹</button>
+        <button type="button" data-stroke="balanced" class="active">匀润</button>
+        <button type="button" data-stroke="spark">星火</button>
       </div>
       <div class="actions">
-        <button id="replay" type="button">Replay Intro</button>
-        <button id="perf" type="button">Light Mode</button>
+        <button id="replay" type="button">再入夜色</button>
+        <button id="perf" type="button">轻盈模式</button>
       </div>
     </div>
-    <button type="button" class="toggle reveal" id="seqBtn">Reveal</button>
-    <button type="button" class="toggle" id="toggle" aria-expanded="false">Controls</button>
-    <div class="hint" id="hint">Move · Drag &nbsp;·&nbsp; Space pause &nbsp;·&nbsp; S save &nbsp;·&nbsp; <span class="fps" id="fps">— fps</span></div>
-    <div class="phase" id="phase">Still night<strong>particles gathering</strong></div>
+    <button type="button" class="toggle reveal" id="seqBtn">显现</button>
+    <button type="button" class="toggle" id="toggle" aria-expanded="false">调控</button>
+    <div class="hint" id="hint">移动 · 拖曳 &nbsp;·&nbsp; 空格暂停 &nbsp;·&nbsp; S 保存 &nbsp;·&nbsp; <span class="fps" id="fps">— fps</span></div>
+    <div class="phase" id="phase">静夜<strong>星尘汇聚</strong></div>
   </div>
 
   <script src="image_data.js"></script>
@@ -353,11 +364,12 @@
       try {
         glow = createGlowRenderer(canvas);
       } catch (err) {
-        document.getElementById("boot").innerHTML = "<span>WebGL2 required for glow render</span>";
+        document.getElementById("boot").innerHTML = "<span>需 WebGL2 方可辉光呈现</span>";
         console.error(err);
         return;
       }
-      const QUALITY_LABELS = ["Low", "Auto", "High"];
+      const QUALITY_LABELS = ["低", "自动", "高"];
+      const STROKE_LABELS = { ink: "墨迹", balanced: "匀润", spark: "星火" };
       const STROKE_FADE = { ink: 0.035, balanced: 0.075, spark: 0.13 };
       const MAX_DENSITY = 3000;
       const gpuList = [];
@@ -679,8 +691,8 @@
         ui.vSpeed.textContent = (+ui.speed.value).toFixed(2);
         ui.vSwirl.textContent = (+ui.swirl.value).toFixed(2);
         ui.vDensity.textContent = ui.density.value;
-        ui.vQuality.textContent = QUALITY_LABELS[+ui.quality.value] || "Auto";
-        ui.vStroke.textContent = strokeMode[0].toUpperCase() + strokeMode.slice(1);
+        ui.vQuality.textContent = QUALITY_LABELS[+ui.quality.value] || "自动";
+        ui.vStroke.textContent = STROKE_LABELS[strokeMode] || strokeMode;
         ui.density.max = String(Math.min(MAX_DENSITY, autoDensityCap));
       }
 
@@ -707,6 +719,7 @@
       }
 
       let paused = false;
+      let captureAfterRender = null;
       let toastTimer = null;
       let panelExpanded = false;
       let seqAlpha = 1;
@@ -727,6 +740,8 @@
         motifDensity: 2000,
         clarity: 0, // 0 blob → 1 sharp silhouette
         returnU: 0, // 0→1 across dissolve+nova+river
+        densitySettle: null, // { from, to, t0, duration } — unused after return (keep density)
+        brandRestored: false,
       };
 
       const SEQ = {
@@ -735,18 +750,34 @@
         text: 2000,
         storm: 4200,
         settle: 9000,
-        dissolve: 1600,
-        nova: 3200,
-        river: 5500,
+        dissolve: 1400,
+        nova: 4500, // turbulent stardust spectacle
+        river: 4000, // brief merge then lock as main orbit (no long thin-out)
+        densitySettleDelay: 8000,
+        densitySettle: 18000,
       };
 
-      // Return spectacle: gold / cyan / magenta / cold white
+      // Starry Night accents only — gold / star-yellow / night-cyan / cream (no candy rainbow)
       const FLARE = [
-        { r: 246, g: 211, b: 90 },
-        { r: 90, g: 214, b: 255 },
-        { r: 255, g: 106, b: 213 },
-        { r: 235, g: 245, b: 255 },
+        { r: 248, g: 214, b: 78 },
+        { r: 255, g: 236, b: 150 },
+        { r: 110, g: 190, b: 230 },
+        { r: 72, g: 150, b: 210 },
+        { r: 240, g: 245, b: 255 },
+        { r: 200, g: 170, b: 70 },
       ];
+
+      function assignFlare(p, i) {
+        const base = FLARE[i % FLARE.length];
+        const jitter = () => (Math.random() - 0.5) * 22;
+        p.flareR = Math.max(0, Math.min(255, Math.round(base.r + jitter())));
+        p.flareG = Math.max(0, Math.min(255, Math.round(base.g + jitter())));
+        p.flareB = Math.max(0, Math.min(255, Math.round(base.b + jitter())));
+        p.flareHue = i % FLARE.length;
+        // Depth layer: 0 = distant dust, 1 = near ember
+        p.depth = Math.pow(Math.random(), 0.65);
+        p.dust = Math.random() < 0.62;
+      }
 
       function returnPhaseProgress(now) {
         const elapsed = now - seq.t0;
@@ -983,7 +1014,7 @@
 
       function setRevealButton(visible, label) {
         seq.buttonVisible = visible;
-        ui.seqBtn.textContent = label || "Reveal";
+        ui.seqBtn.textContent = label || "显现";
         ui.seqBtn.classList.toggle("is-open", visible);
         ui.seqBtn.disabled = !visible;
         ui.hint.classList.toggle("with-reveal", visible);
@@ -995,10 +1026,11 @@
         seq.idleSince = 0;
         seq.clarity = 0;
         seqAlpha = 1;
+        seq.densitySettle = null;
         applyQualityPreset(+ui.quality.value || 0);
         glow.setBloom(+ui.quality.value === 0 ? 0 : bloomStrength);
         ui.motifText.classList.remove("show");
-        setRevealButton(false, "Reveal");
+        setRevealButton(false, "显现");
         clearMotifTargets();
       }
 
@@ -1010,6 +1042,7 @@
 
       function beginReveal(now) {
         if (seq.phase !== "idle" || !motifReady || intro.active) return;
+        seq.densitySettle = null;
         seq.savedSpeed = +ui.speed.value || live.speed || 0.75;
         seq.savedSwirl = +ui.swirl.value || live.swirl || 1.35;
         seq.savedDensity = Math.min(
@@ -1020,7 +1053,7 @@
         seq.phase = "fadeOut";
         seq.t0 = now;
         seq.clarity = 0;
-        setRevealButton(false, "Reveal");
+        setRevealButton(false, "显现");
         ui.motifText.classList.remove("show");
         ui.brand.classList.add("dim");
       }
@@ -1031,33 +1064,25 @@
         seq.t0 = now;
         seq.clarity = 1;
         seq.returnU = 0;
+        seq.densitySettle = null;
+        seq.brandRestored = false;
         seq.motifDensity = particles.length;
         if (!seq.savedDensity) {
           seq.savedDensity = Math.min(MAX_DENSITY, Math.max(800, +ui.density.value || 2000));
         }
-        setRevealButton(false, "Return");
+        setRevealButton(false, "归返");
         ui.motifText.classList.remove("show");
-        glow.clearTrail();
+        // Keep trails continuous through dissolve → nova
 
-        // Mild trim; density finishes during nova→river
-        const startDens = Math.round(
-          seq.motifDensity * 0.88 + seq.savedDensity * 0.12
-        );
-        live.density = startDens;
-        ui.density.value = String(startDens);
-        spawnParticles(startDens, false);
-        seq.motifDensity = startDens;
+        live.density = seq.motifDensity;
+        ui.density.value = String(seq.motifDensity);
 
         const cx = W * 0.5;
         const cy = H * 0.5;
         const n = particles.length;
         for (let i = 0; i < n; i++) {
           const p = particles[i];
-          const flare = FLARE[i % FLARE.length];
-          p.flareR = flare.r;
-          p.flareG = flare.g;
-          p.flareB = flare.b;
-          p.flareHue = i % FLARE.length;
+          assignFlare(p, i);
           p.skySeed = false;
           p.motif = true;
           // Inward inhale before nova blast
@@ -1071,27 +1096,64 @@
         }
       }
 
-      function setReturnDensity(tAll) {
-        // tAll: 0 at dissolve start → 1 at river end
-        const dens = Math.round(
-          seq.motifDensity + (seq.savedDensity - seq.motifDensity) * easeInOutCubic(tAll)
-        );
+      function returnHoldDensity() {
+        // During return keep the richer motif count; never thin toward saved mid-spectacle
+        return Math.max(seq.motifDensity, seq.savedDensity | 0);
+      }
+
+      function setReturnDensity() {
+        const dens = Math.round(returnHoldDensity());
         if (Math.abs(dens - particles.length) >= 25) {
           const prev = particles.length;
           live.density = dens;
           ui.density.value = String(dens);
           spawnParticles(dens, false);
-          // New river particles get flare so they can twinkle into the field
           for (let i = prev; i < particles.length; i++) {
-            const flare = FLARE[i % FLARE.length];
             const p = particles[i];
-            p.flareR = flare.r;
-            p.flareG = flare.g;
-            p.flareB = flare.b;
-            p.flareHue = i % FLARE.length;
+            assignFlare(p, i);
             p.motif = false;
             p.burstReady = false;
           }
+        }
+      }
+
+      function startDensitySettle(now) {
+        const from = particles.length;
+        const to = Math.min(MAX_DENSITY, Math.max(800, Math.round(seq.savedDensity)));
+        if (from <= to + 10) {
+          seq.densitySettle = null;
+          live.density = from;
+          ui.density.value = String(from);
+          return;
+        }
+        // Delay so the 2–4s handoff into main orbit never thins mid-spectacle
+        seq.densitySettle = {
+          from,
+          to,
+          t0: now + SEQ.densitySettleDelay,
+          duration: SEQ.densitySettle,
+        };
+      }
+
+      function updateDensitySettle(now) {
+        const s = seq.densitySettle;
+        if (!s || seq.phase !== "idle") return;
+        if (now < s.t0) return;
+        const t = Math.min(1, (now - s.t0) / s.duration);
+        const dens = Math.round(s.from + (s.to - s.from) * easeInOutCubic(t));
+        if (Math.abs(dens - particles.length) >= 20) {
+          live.density = dens;
+          ui.density.value = String(dens);
+          spawnParticles(dens, false);
+          syncLabels();
+        }
+        if (t >= 1) {
+          seq.densitySettle = null;
+          live.density = s.to;
+          ui.density.value = String(s.to);
+          target.density = s.to;
+          spawnParticles(s.to, false);
+          syncLabels();
         }
       }
 
@@ -1099,7 +1161,7 @@
         // Arm Reveal chip ~5s after free flight
         if (seq.phase === "idle" && seq.revealArmed && !seq.buttonVisible && !intro.active) {
           if (now - seq.idleSince >= SEQ.waitReveal) {
-            setRevealButton(true, "Reveal");
+            setRevealButton(true, "显现");
           }
         }
 
@@ -1162,13 +1224,13 @@
           live.speed = 0.04;
           live.swirl = 0.08;
           // Offer Return once the shape is mostly readable (no sudden chip pop at hold)
-          if (t > 0.72 && !seq.buttonVisible) setRevealButton(true, "Return");
+          if (t > 0.72 && !seq.buttonVisible) setRevealButton(true, "归返");
           if (t >= 1) {
             seq.phase = "hold";
             seq.t0 = now;
             seq.clarity = 1;
-            if (!seq.buttonVisible) setRevealButton(true, "Return");
-            else ui.seqBtn.textContent = "Return";
+            if (!seq.buttonVisible) setRevealButton(true, "归返");
+            else ui.seqBtn.textContent = "归返";
           }
           return;
         }
@@ -1188,8 +1250,8 @@
           seq.returnU = t * 0.15;
           live.speed = 0.04 + e * 0.12;
           live.swirl = 0.08 + e * 0.35;
-          // Bloom climbs into the nova flash
-          bloomStrength = Math.max(seq.savedBloom, 0.45) * (0.75 + e * 0.55);
+          // Climb into storm glow — no white flash
+          bloomStrength = Math.max(seq.savedBloom, 0.45) * (0.7 + e * 0.45);
           if (t >= 1) {
             seq.phase = "nova";
             seq.t0 = now;
@@ -1197,12 +1259,14 @@
             const cy = H * 0.5;
             for (let i = 0; i < particles.length; i++) {
               const p = particles[i];
+              const depth = p.depth != null ? p.depth : 0.5;
               const dx = p.x - cx;
               const dy = p.y - cy;
-              const outward = Math.atan2(dy, dx);
+              const outward = Math.atan2(dy, dx) + (Math.random() - 0.5) * 0.55;
               const tang = outward + Math.PI * 0.5;
-              const speed = 2.2 + Math.random() * 3.6 + (p.stormRad || 0.3) * 1.6;
-              const mix = 0.55 + Math.random() * 0.35;
+              // Near embers fly faster; distant dust drifts slower
+              const speed = (p.dust ? 1.4 : 2.4) + Math.random() * (p.dust ? 2.2 : 4.2) + depth * 2.4;
+              const mix = 0.45 + Math.random() * 0.45;
               p.vx = Math.cos(outward) * speed * (1 - mix) + Math.cos(tang) * speed * mix;
               p.vy = Math.sin(outward) * speed * (1 - mix) + Math.sin(tang) * speed * mix;
               p.burstReady = true;
@@ -1217,12 +1281,12 @@
           const e = easeOutCubic(t);
           seq.clarity = 0.35 * (1 - e);
           seq.returnU = 0.15 + t * 0.35;
-          live.speed = 0.16 + e * Math.max(0.55, seq.savedSpeed * 0.85);
-          live.swirl = 0.45 + e * Math.max(0.7, seq.savedSwirl * 0.7);
-          // Peak flash mid-nova then ease down
-          const flash = Math.sin(Math.min(1, t / 0.35) * Math.PI) * (t < 0.45 ? 1 : 0.55);
-          bloomStrength = Math.max(seq.savedBloom, 0.5) * (0.95 + flash * 0.55) + flash * 0.25;
-          if (t > 0.8) setReturnDensity((t - 0.8) / 0.2 * 0.2);
+          live.speed = 0.18 + e * Math.max(0.6, seq.savedSpeed * 0.9);
+          live.swirl = 0.55 + e * Math.max(0.85, seq.savedSwirl * 0.75);
+          // Warm storm lift, not a screen flash
+          const lift = Math.sin(Math.min(1, t / 0.45) * Math.PI) * (t < 0.5 ? 0.35 : 0.18);
+          bloomStrength = Math.max(seq.savedBloom, 0.48) * (0.92 + lift * 0.22) + lift * 0.06;
+          if (t > 0.85) setReturnDensity();
           if (t >= 1) {
             seq.phase = "river";
             seq.t0 = now;
@@ -1236,40 +1300,53 @@
 
         if (seq.phase === "river") {
           const t = Math.min(1, elapsed / SEQ.river);
-          const e = easeInOutCubic(t);
           seq.clarity = 0;
           seq.returnU = 0.5 + t * 0.5;
-          const startSpeed = 0.16 + Math.max(0.55, seq.savedSpeed * 0.85);
-          const startSwirl = 0.45 + Math.max(0.7, seq.savedSwirl * 0.7);
-          // Early river keeps high swirl (arm), then settles to saved
-          const armSwirl = startSwirl * (1.15 - e * 0.15);
-          live.speed = startSpeed + (seq.savedSpeed - startSpeed) * e;
-          live.swirl = armSwirl + (seq.savedSwirl - armSwirl) * easeInOutCubic(Math.max(0, (t - 0.35) / 0.65));
+          const idleBloom = +ui.quality.value === 0 ? 0 : seq.savedBloom;
+          const startSpeed = 0.18 + Math.max(0.6, seq.savedSpeed * 0.9);
+          const startSwirl = 0.55 + Math.max(0.85, seq.savedSwirl * 0.75);
+          // After ~28% of river the star-river IS main orbit — lock params, stop "thinning"
+          const lockT = 0.28;
+          if (t >= lockT) {
+            live.speed = seq.savedSpeed;
+            live.swirl = seq.savedSwirl;
+            bloomStrength = idleBloom;
+            if (!seq.brandRestored) {
+              ui.brand.classList.remove("dim");
+              seq.brandRestored = true;
+            }
+          } else {
+            const e = easeInOutCubic(t / lockT);
+            live.speed = startSpeed + (seq.savedSpeed - startSpeed) * e;
+            live.swirl = startSwirl + (seq.savedSwirl - startSwirl) * e;
+            bloomStrength = Math.max(seq.savedBloom, 0.48) + (idleBloom - Math.max(seq.savedBloom, 0.48)) * e;
+          }
           ui.speed.value = live.speed.toFixed(2);
           ui.swirl.value = live.swirl.toFixed(2);
-          setReturnDensity(0.2 + t * 0.8);
-          const idleBloom = +ui.quality.value === 0 ? 0 : seq.savedBloom;
-          bloomStrength = Math.max(seq.savedBloom, 0.5) * (1.05 - 0.25 * e) + idleBloom * e;
+          setReturnDensity();
           if (t >= 1) {
+            // Invisible handoff: visuals already identical to idle
             seq.phase = "idle";
             seq.returnU = 0;
             clearMotifTargets();
             live.speed = seq.savedSpeed;
             live.swirl = seq.savedSwirl;
-            live.density = seq.savedDensity;
             bloomStrength = idleBloom;
-            ui.speed.value = live.speed.toFixed(2);
-            ui.swirl.value = live.swirl.toFixed(2);
-            ui.density.value = String(Math.round(seq.savedDensity));
-            spawnParticles(seq.savedDensity, false);
+            // Keep the denser star-river count as the new main-orbit density — never auto-thin
+            const keep = particles.length;
+            seq.savedDensity = keep;
+            target.density = keep;
+            live.density = keep;
+            ui.density.value = String(keep);
+            seq.densitySettle = null;
             for (let i = 0; i < particles.length; i++) {
               particles[i].skySeed = false;
-              particles[i].vx = 0;
-              particles[i].vy = 0;
               particles[i].burstReady = false;
             }
+            if (!seq.brandRestored) ui.brand.classList.remove("dim");
+            seq.brandRestored = false;
             armRevealAfterIdle(now);
-            setRevealButton(false, "Reveal");
+            setRevealButton(false, "显现");
             syncLabels();
           }
         }
@@ -1286,7 +1363,7 @@
         panelExpanded = open;
         ui.panel.classList.toggle("is-open", open);
         ui.toggle.setAttribute("aria-expanded", open ? "true" : "false");
-        ui.toggle.textContent = open ? "Close" : "Controls";
+        ui.toggle.textContent = open ? "收起" : "调控";
       }
 
       function revealPanelSoft() {
@@ -1308,7 +1385,7 @@
         requestAnimationFrame(tick);
       }
 
-      function saveScreenshot() {
+      function downloadFrame() {
         try {
           const url = canvas.toDataURL("image/png");
           const a = document.createElement("a");
@@ -1316,11 +1393,22 @@
           a.href = url;
           a.download = `starry-night-${stamp}.png`;
           a.click();
-          showToast("Screenshot saved");
+          showToast("已存入画卷");
         } catch (err) {
-          showToast("Save failed");
+          showToast("保存未成");
           console.error(err);
         }
+      }
+
+      function saveScreenshot() {
+        // Snapshot right after a paint so the WebGL buffer still holds the frame.
+        if (paused) {
+          glow.writeParticles(gpuList);
+          glow.render();
+          downloadFrame();
+          return;
+        }
+        captureAfterRender = downloadFrame;
       }
 
       function togglePause() {
@@ -1362,7 +1450,7 @@
         paused = false;
         panelExpanded = false;
         resetSequenceUI();
-        setPhase("gather", "Still night", "particles gathering");
+        setPhase("gather", "静夜", "星尘汇聚");
         spawnParticles(0, true);
         paintBackdrop();
         syncLabels();
@@ -1377,9 +1465,9 @@
         const flowT = smoothstep(Math.max(0, Math.min(1, (u - 0.64) / 0.2)));
         const swirlT = easeInOutCubic(Math.max(0, Math.min(1, (u - 0.75) / 0.25)));
 
-        if (u < 0.64) setPhase("gather", "Still night", "particles gathering");
-        else if (u < 0.78) setPhase("flow", "Wind rises", "flow awakening");
-        else setPhase("swirl", "The sky turns", "swirl unfolding");
+        if (u < 0.64) setPhase("gather", "静夜", "星尘汇聚");
+        else if (u < 0.78) setPhase("flow", "风起", "气流初醒");
+        else setPhase("swirl", "天旋", "漩涡展开");
 
         if (!intro.userLocked) {
           live.density = densT * Math.min(target.density, autoDensityCap, MAX_DENSITY);
@@ -1426,6 +1514,7 @@
         const current = +ui.density.value;
         if (fpsEma < 32 && current > 1200) {
           const next = Math.max(1200, Math.round(current * 0.85 / 100) * 100);
+          seq.densitySettle = null;
           ui.density.value = String(next);
           live.density = next;
           spawnParticles(next, false);
@@ -1438,6 +1527,7 @@
         lastFrame = now;
         updateIntro(now);
         updateSequence(now);
+        updateDensitySettle(now);
 
         if (paused) {
           requestAnimationFrame(frame);
@@ -1446,10 +1536,14 @@
 
         const inSeqMotion = seq.phase !== "idle";
         const returning = isReturning(seq.phase);
-        if ((!intro.active || intro.userLocked) && !inSeqMotion) {
+        if ((!intro.active || intro.userLocked) && !inSeqMotion && !seq.densitySettle) {
           live.speed = +ui.speed.value;
           live.swirl = +ui.swirl.value;
           live.density = +ui.density.value;
+        } else if ((!intro.active || intro.userLocked) && !inSeqMotion && seq.densitySettle) {
+          // Density owned by settle; still allow speed/swirl from sliders
+          live.speed = +ui.speed.value;
+          live.swirl = +ui.swirl.value;
         }
         // During return, density is owned by setReturnDensity — don't fight it
 
@@ -1460,23 +1554,29 @@
         const rivering = seq.phase === "river";
         const idleTrail = contextTrail();
         const retProg = returning ? returnPhaseProgress(now) : { local: 0, u: 0 };
+        const riverT = rivering ? retProg.local : 0;
+        // Once star-river is visible, render as main orbit — no more fade/thin style
+        const orbitLocked = rivering && riverT >= 0.28;
+        const returnLook = returning && !orbitLocked;
         if (motifLive) {
           // Continuous crisp → no bloom/trail jump when settle becomes hold
           const crisp = seq.clarity;
           trailFade = STROKE_FADE.spark + (0.2 - STROKE_FADE.spark) * crisp;
           bloomStrength = seq.savedBloom * (1 - crisp * 0.55) + 0.2 * crisp;
-        } else if (returning) {
-          // Longer trails during nova for colorful spiral ribbons
+        } else if (returnLook) {
           if (dissolving) {
             trailFade = idleTrail * (0.9 + retProg.local * 0.35);
           } else if (novating) {
-            trailFade = Math.min(0.22, idleTrail * (1.35 + Math.sin(retProg.local * Math.PI) * 0.55));
+            trailFade = Math.min(0.2, idleTrail * (1.25 + (1 - retProg.local) * 0.35));
           } else {
-            trailFade = idleTrail * (1.15 - retProg.local * 0.2);
+            // early river only
+            trailFade = idleTrail * (1.08 - riverT * 0.08);
           }
+        } else {
+          trailFade = idleTrail;
         }
         glow.setTrailDamp(trailFade);
-        const bloomOut = (+ui.quality.value === 0 && seq.phase === "idle") ? 0 : bloomStrength;
+        const bloomOut = (+ui.quality.value === 0 && (seq.phase === "idle" || orbitLocked)) ? 0 : bloomStrength;
         glow.setBloom(bloomOut);
 
         if (now - lastField > fieldInterval) {
@@ -1505,7 +1605,6 @@
         const stormT = storming ? Math.min(1, (now - seq.t0) / SEQ.storm) : 1;
         const dissolveT = dissolving ? retProg.local : 0;
         const novaT = novating ? retProg.local : 0;
-        const riverT = rivering ? retProg.local : 0;
         const returnU = retProg.u;
         gpuList.length = 0;
 
@@ -1533,45 +1632,57 @@
             p.vx *= 0.92;
             p.vy *= 0.92;
           } else if (novating) {
-            const drag = 0.978 - novaT * 0.012;
+            const depth = p.depth != null ? p.depth : 0.5;
+            const drag = 0.991 - novaT * 0.005 - (p.dust ? 0.004 : 0);
             p.vx = (p.vx || 0) * drag;
             p.vy = (p.vy || 0) * drag;
-            // Strong spiral: tangential shove + growing flow mix
-            const spin = 0.055 * (1 - novaT * 0.4);
+            // Turbulent swirl — keep chaos longer before locking to field ribbons
+            const spin = (0.078 + depth * 0.04) * (1 - novaT * 0.45);
+            const turb = (0.95 + depth * 0.55) * (1 - novaT * 0.55);
             const nx = p.vx;
-            p.vx += -p.vy * spin + (Math.random() - 0.5) * 0.55 * (1 - novaT * 0.6);
-            p.vy += nx * spin + (Math.random() - 0.5) * 0.55 * (1 - novaT * 0.6);
-            const flowMix = easeInOutCubic(novaT) * 0.9;
+            p.vx += -p.vy * spin + (Math.random() - 0.5) * turb;
+            p.vy += nx * spin + (Math.random() - 0.5) * turb;
+            // Field only late — prevents early candy-wave streams
+            const flowMix = easeInOutCubic(Math.max(0, (novaT - 0.4) / 0.6)) * 0.75;
             p.vx += (s.vx / len) * step * flowMix;
             p.vy += (s.vy / len) * step * flowMix;
             p.x += p.vx;
             p.y += p.vy;
-            // Late nova: some particles already ride the field as river seeds
-            if (novaT > 0.55 && Math.random() < 0.012 + novaT * 0.02) {
+            if (novaT > 0.6 && Math.random() < 0.015 + novaT * 0.025) {
               p.motif = false;
               p.burstReady = false;
-              p.vx *= 0.4;
-              p.vy *= 0.4;
             }
           } else if (rivering) {
             if (step > 0.001) {
               p.x += (s.vx / len) * step;
               p.y += (s.vy / len) * step;
             }
-            // Early river: extra tangential twist → visible galactic arm
-            const arm = (1 - easeOutCubic(Math.min(1, riverT / 0.45))) * 0.55;
-            if (arm > 0.02) {
-              const dx = p.x - cx;
-              const dy = p.y - cy;
-              p.x += -dy * 0.0045 * arm;
-              p.y += dx * 0.0045 * arm;
-            }
-            const coast = (1 - easeOutCubic(riverT)) * 0.42;
-            if (p.vx || p.vy) {
-              p.x += (p.vx || 0) * coast;
-              p.y += (p.vy || 0) * coast;
-              p.vx *= 0.84;
-              p.vy *= 0.84;
+            // Only early river has residual coast; after orbit lock, pure field like idle
+            if (riverT < 0.28) {
+              const arm = (1 - easeOutCubic(riverT / 0.28)) * 0.35;
+              if (arm > 0.02) {
+                const dx = p.x - cx;
+                const dy = p.y - cy;
+                p.x += -dy * 0.003 * arm + (Math.random() - 0.5) * arm * 1.2;
+                p.y += dx * 0.003 * arm + (Math.random() - 0.5) * arm * 1.2;
+              }
+              const coast = (1 - easeOutCubic(riverT / 0.28)) * 0.35;
+              if (p.vx || p.vy) {
+                p.x += (p.vx || 0) * coast;
+                p.y += (p.vy || 0) * coast;
+                p.vx *= 0.9;
+                p.vy *= 0.9;
+              }
+            } else if (p.vx || p.vy) {
+              // Bleed residual into field, same as idle coast
+              p.x += (p.vx || 0) * 0.15;
+              p.y += (p.vy || 0) * 0.15;
+              p.vx *= 0.92;
+              p.vy *= 0.92;
+              if (Math.abs(p.vx) < 0.02 && Math.abs(p.vy) < 0.02) {
+                p.vx = 0;
+                p.vy = 0;
+              }
             }
             p.motif = false;
           } else if (p.motif && p.tx != null && (storming || settling)) {
@@ -1610,6 +1721,17 @@
             p.x += (s.vx / len) * step;
             p.y += (s.vy / len) * step;
           }
+          // Residual return coast into idle — decay into the field
+          if (!motifLive && !returning && !dissolving && (p.vx || p.vy)) {
+            p.x += p.vx || 0;
+            p.y += p.vy || 0;
+            p.vx *= 0.92;
+            p.vy *= 0.92;
+            if (Math.abs(p.vx) < 0.02 && Math.abs(p.vy) < 0.02) {
+              p.vx = 0;
+              p.vy = 0;
+            }
+          }
           p.age += 0.25 + motion * 0.85;
 
           // Idle look — blend target so river never hard-cuts style
@@ -1619,35 +1741,31 @@
           let sz = idleSz;
           let pr = s.r, pg = s.g, pb = s.b;
 
-          if (returning) {
+          if (returnLook) {
             const fr = p.flareR != null ? p.flareR : 246;
             const fg = p.flareG != null ? p.flareG : 211;
             const fb = p.flareB != null ? p.flareB : 90;
             const mr = p.tr != null ? p.tr : s.r;
             const mg = p.tg != null ? p.tg : s.g;
             const mb = p.tb != null ? p.tb : s.b;
+            const depth = p.depth != null ? p.depth : 0.5;
             const u = returnU;
             let flareW = 0;
             let motifW = 0;
             if (u < 0.15) {
-              // Burn-through: brighten motif, tip edges into flare
               const t = u / 0.15;
-              motifW = 1 - t * 0.35;
-              flareW = 0.25 + t * 0.55;
+              motifW = 1 - t * 0.4;
+              flareW = 0.2 + t * 0.4;
               const edge = Math.min(1, Math.hypot(p.x - cx, p.y - cy) / (Math.min(W, H) * 0.28));
-              flareW *= 0.45 + edge * 0.7;
-            } else if (u < 0.5) {
-              // Flare-dominant colorful spiral
-              const t = (u - 0.15) / 0.35;
-              flareW = 0.85 - t * 0.35;
-              motifW = Math.max(0, 0.25 * (1 - t));
+              flareW *= 0.4 + edge * 0.7;
+            } else if (u < 0.48) {
+              const t = (u - 0.15) / 0.33;
+              flareW = (0.42 - t * 0.28) * (p.dust ? 0.55 : 1);
+              motifW = Math.max(0, 0.18 * (1 - t));
             } else {
-              // Field color with ~8% lingering flare stars
-              const t = (u - 0.5) / 0.5;
-              flareW = (1 - t) * 0.22;
-              if ((p.flareHue === 0 || p.flareHue === 2) && Math.sin(time * 3.1 + i * 0.7) > 0.72) {
-                flareW = 0.35 + (1 - t) * 0.4;
-              }
+              // Early river only (before orbit lock): already mostly painting
+              const t = Math.min(1, (u - 0.48) / 0.1);
+              flareW = (1 - t) * 0.06;
             }
             const fieldW = Math.max(0, 1 - flareW - motifW);
             pr = mr * motifW + fr * flareW + s.r * fieldW;
@@ -1655,20 +1773,24 @@
             pb = mb * motifW + fb * flareW + s.b * fieldW;
 
             if (dissolving) {
-              const pulse = 1 + dissolveT * 0.55 + Math.sin(time * 4 + (p.stormPhase || 0)) * 0.08;
-              a = Math.min(1, (0.55 + dissolveT * 0.35) * pulse);
-              sz = p.size * (1.15 + dissolveT * 0.55) * pulse;
+              const pulse = 1 + dissolveT * 0.45 + Math.sin(time * 4 + (p.stormPhase || 0)) * 0.06;
+              a = Math.min(1, (0.5 + dissolveT * 0.3 + depth * 0.15) * pulse);
+              sz = p.size * (0.7 + depth * 1.1) * (1.05 + dissolveT * 0.45) * pulse;
             } else if (novating) {
-              const ribbon = 1.15 + (1 - novaT) * 0.7 + Math.sin(time * 5 + i) * 0.06;
-              a = Math.min(1, 0.72 * (1 - novaT * 0.25) + idleA * easeInOutCubic(novaT));
-              sz = (p.size * (1.4 + (1 - novaT) * 0.9)) * ribbon * (1 - novaT * 0.35) + idleSz * easeInOutCubic(novaT);
+              const near = 0.55 + depth * 1.35;
+              const dustMul = p.dust ? 0.45 + depth * 0.25 : near;
+              const stormA = 0.35 + depth * 0.45 + (p.dust ? 0.12 : 0.28);
+              const toIdle = easeInOutCubic(Math.max(0, (novaT - 0.35) / 0.65));
+              a = Math.min(1, stormA * (1 - toIdle) + idleA * toIdle);
+              sz = p.size * dustMul * (1.55 - novaT * 0.55) * (1 - toIdle) + idleSz * toIdle;
             } else {
-              // river — bright stars then settle
-              const starPop = riverT < 0.4 && (i % 11 === 0)
-                ? 1.35 + Math.sin(time * 4.5 + i) * 0.25
-                : 1;
-              a = idleA * (0.9 + (1 - riverT) * 0.2) * Math.min(1.2, starPop);
-              sz = idleSz * starPop;
+              // brief early-river blend into idle look
+              const blend = easeInOutCubic(Math.min(1, riverT / 0.28));
+              a = idleA;
+              sz = idleSz;
+              pr = pr * (1 - blend) + s.r * blend;
+              pg = pg * (1 - blend) + s.g * blend;
+              pb = pb * (1 - blend) + s.b * blend;
             }
           } else if (p.motif && (storming || settling)) {
             const blend = Math.min(1, 0.35 + clarity * 0.65);
@@ -1703,7 +1825,7 @@
             });
           }
 
-          // Off-screen during return → respawn into upper starfield
+          // Off-screen during return → respawn into upper starfield with field kick
           if (returning) {
             if (p.x < -40 || p.x > W + 40 || p.y < -40 || p.y > H + 40) {
               const n = spawnOne();
@@ -1715,15 +1837,12 @@
               p.motif = false;
               p.burstReady = false;
               p.skySeed = false;
-              p.vx = 0;
-              p.vy = 0;
-              if (p.flareR == null) {
-                const flare = FLARE[i % FLARE.length];
-                p.flareR = flare.r;
-                p.flareG = flare.g;
-                p.flareB = flare.b;
-                p.flareHue = i % FLARE.length;
-              }
+              const s2 = fieldSample(p.x, p.y);
+              const len2 = Math.hypot(s2.vx, s2.vy) + 1e-4;
+              const kick = 0.8 + Math.random() * 1.4;
+              p.vx = (s2.vx / len2) * kick;
+              p.vy = (s2.vy / len2) * kick;
+              if (p.flareR == null) assignFlare(p, i);
             }
           } else if (!motifLive && (p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20 || p.age > 220 + p.life * 100)) {
             const n = spawnOne();
@@ -1736,6 +1855,11 @@
 
         glow.writeParticles(gpuList);
         glow.render();
+        if (captureAfterRender) {
+          const grab = captureAfterRender;
+          captureAfterRender = null;
+          grab();
+        }
 
         frames++;
         if (now - lastFps > 500) {
@@ -1764,6 +1888,7 @@
       ui.density.addEventListener("input", () => {
         const capped = Math.min(+ui.density.value, autoDensityCap, MAX_DENSITY);
         ui.density.value = String(capped);
+        seq.densitySettle = null;
         lockFromUser();
         spawnParticles(capped, false);
         syncLabels();

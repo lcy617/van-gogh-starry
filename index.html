@@ -136,12 +136,19 @@
       left: 50%;
       top: 46%;
       transform: translate(-50%, -50%);
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: clamp(1.8rem, 5vw, 3.2rem);
+      font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+      font-size: clamp(1.95rem, 5.4vw, 3.35rem);
       font-weight: 500;
-      letter-spacing: 0.06em;
-      color: rgba(238, 243, 255, 0.92);
-      text-shadow: 0 0 40px rgba(120, 160, 255, 0.35);
+      font-style: italic;
+      font-optical-sizing: auto;
+      letter-spacing: 0.14em;
+      word-spacing: 0.08em;
+      text-transform: lowercase;
+      color: rgba(242, 246, 255, 0.94);
+      text-shadow:
+        0 0 1px rgba(220, 230, 255, 0.4),
+        0 0 28px rgba(140, 175, 255, 0.28),
+        0 0 52px rgba(240, 193, 75, 0.12);
       opacity: 0;
       transition: opacity 0.9s ease;
       pointer-events: none;
@@ -314,7 +321,7 @@
       <h1>星<em>月</em>夜</h1>
       <p>静夜自寂中苏醒。轻移搅动星空，拖曳加深漩涡。</p>
     </div>
-    <div class="motif-text" id="motifText">予你。</div>
+    <div class="motif-text" id="motifText">for you</div>
     <div class="pause-badge" id="pauseBadge">已暂停</div>
     <div class="toast" id="toast">已保存</div>
     <div class="panel" id="panel">

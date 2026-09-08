@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Soft GPU points + trail feedback + half-res bloom. No CDN.
  */
 function createGlowRenderer(canvas) {
